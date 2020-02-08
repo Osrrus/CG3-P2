@@ -19,6 +19,9 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{d388619d-1de3-48e7-8a1f-e54d23d041f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="components">
+      <UniqueIdentifier>{7426ab92-dc77-46ad-8bb0-53d23fb4de25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -51,6 +54,9 @@
     <ClCompile Include="lib\ImGui\imgui_demo.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="components\camera.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -79,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="lib\ImGui\imgui.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="components\camera.h">
+      <Filter>components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

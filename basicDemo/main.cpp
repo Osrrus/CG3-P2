@@ -1,6 +1,9 @@
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glad/glad.h> // Glad has to be include before glfw
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 #include <iostream>
 #include <stb_image.h>
 
@@ -10,6 +13,7 @@
 #include "lib/ImGui/imgui_impl_opengl3.h"
 #include "lib/ImGui/imconfig.h"
 
+#include "components/camera.h"
 
 
 // Window current width
@@ -29,6 +33,12 @@ unsigned int VBO;
 unsigned int VAO;
 // Index (GPU) of the texture
 unsigned int textureID;
+
+Camera* camera;
+bool pressLeft;
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void onMouseButton(GLFWwindow* window, int button, int action, int mods);
 
 /**
  * Handles the window resize
@@ -72,6 +82,8 @@ bool initWindow()
 
     // Window resize callback
     glfwSetFramebufferSizeCallback(window, resize);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, onMouseButton);
     return true;
 }
 /**
@@ -252,7 +264,8 @@ bool init()
 
     // Initialize the opengl context
     initGL();
-
+    
+    camera = new Camera();
     initImGui();
     // Loads the shader
     shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
@@ -276,6 +289,28 @@ void processKeyboardInput(GLFWwindow *window)
         // Tells glfw to close the window as soon as possible
         glfwSetWindowShouldClose(window, true);
 
+    // Camera move
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+
+        camera->moveForward();
+
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+
+        camera->moveBackward();
+
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+
+        camera->strafeLeft();
+
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+
+        camera->strafeRight();
+
+    }
+
     // Checks if the r key is pressed
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
     {
@@ -295,6 +330,8 @@ void render()
     /** Draws code goes here **/
     // Use the shader
     shader->use();
+    shader->setMat4("view", camera->getWorlToViewMatrix());
+    shader->setMat4("projection", glm::perspective(glm::radians(90.0f), (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f));
     // Binds the vertex array to be drawn
     glBindVertexArray(VAO);
     // Renders the triangle gemotry
@@ -367,4 +404,16 @@ int main(int argc, char const *argv[])
     glfwTerminate();
 
     return 0;
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+
+    if(pressLeft)
+        camera->mouseUpdate(glm::vec2(xpos, ypos));
+
+}
+
+void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+{
+    pressLeft = action == GLFW_PRESS ? true : false;
 }
