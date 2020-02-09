@@ -13,8 +13,7 @@
 #include "lib/ImGui/imgui_impl_opengl3.h"
 #include "lib/ImGui/imconfig.h"
 
-#include "Api/ApiDefine.h"
-#include "Api/ApiManager.h"
+#include "Api/RYGraphics.h"
 
 // Window current width
 unsigned int windowWidth = 800;
@@ -34,8 +33,8 @@ unsigned int VAO;
 // Index (GPU) of the texture
 unsigned int textureID;
 
-Camera* camera;
 bool pressLeft;
+RYGraphics* Api;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
@@ -137,7 +136,7 @@ void initImGui(){
 void renderImGui() {
 
     ImGui::Begin("API Controls");
-    ImGui::Text("FPS: %d", getFPS());
+    ImGui::Text("FPS: %d", Api->getFPS());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
 
@@ -265,7 +264,7 @@ bool init()
     // Initialize the opengl context
     initGL();
     
-    camera = createCamera();
+    Api = new RYGraphics();
 
     initImGui();
     // Loads the shader
@@ -293,22 +292,22 @@ void processKeyboardInput(GLFWwindow *window)
     // Camera move
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 
-        camera->moveForward();
+        Api->camera->moveForward();
 
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 
-        camera->moveBackward();
+        Api->camera->moveBackward();
 
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 
-        camera->strafeLeft();
+        Api->camera->strafeLeft();
 
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 
-        camera->strafeRight();
+        Api->camera->strafeRight();
 
     }
 
@@ -331,7 +330,7 @@ void render()
     /** Draws code goes here **/
     // Use the shader
     shader->use();
-    shader->setMat4("view", camera->getWorlToViewMatrix());
+    shader->setMat4("view", Api->camera->getWorlToViewMatrix());
     shader->setMat4("projection", glm::perspective(glm::radians(90.0f), (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f));
     // Binds the vertex array to be drawn
     glBindVertexArray(VAO);
@@ -410,7 +409,7 @@ int main(int argc, char const *argv[])
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
     if(pressLeft)
-        camera->mouseUpdate(glm::vec2(xpos, ypos));
+        Api->camera->mouseUpdate(glm::vec2(xpos, ypos));
 
 }
 
