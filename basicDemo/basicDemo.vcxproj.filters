@@ -19,8 +19,8 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{d388619d-1de3-48e7-8a1f-e54d23d041f4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="components">
-      <UniqueIdentifier>{7426ab92-dc77-46ad-8bb0-53d23fb4de25}</UniqueIdentifier>
+    <Filter Include="Api">
+      <UniqueIdentifier>{2c6052a3-1c20-4fdd-a760-69ed4afb2d7e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,8 +54,8 @@
     <ClCompile Include="lib\ImGui\imgui_demo.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="components\camera.cpp">
-      <Filter>components</Filter>
+    <ClCompile Include="Api\camera.cpp">
+      <Filter>Api</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,8 +86,14 @@
     <ClInclude Include="lib\ImGui\imgui.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="components\camera.h">
-      <Filter>components</Filter>
+    <ClInclude Include="Api\ApiManager.h">
+      <Filter>Api</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\camera.h">
+      <Filter>Api</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\ApiDefine.h">
+      <Filter>Api</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

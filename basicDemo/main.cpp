@@ -13,8 +13,8 @@
 #include "lib/ImGui/imgui_impl_opengl3.h"
 #include "lib/ImGui/imconfig.h"
 
-#include "components/camera.h"
-
+#include "Api/ApiDefine.h"
+#include "Api/ApiManager.h"
 
 // Window current width
 unsigned int windowWidth = 800;
@@ -117,8 +117,7 @@ void initImGui(){
         const char* glsl_version = "#version 130";
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-        //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+
     #endif
 
     IMGUI_CHECKVERSION();
@@ -137,8 +136,9 @@ void initImGui(){
 
 void renderImGui() {
 
-    ImGui::Begin("Demo window");
-    ImGui::Button("Hello!");
+    ImGui::Begin("API Controls");
+    ImGui::Text("FPS: %d", getFPS());
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
 
     // Render dear imgui into screen
@@ -265,7 +265,8 @@ bool init()
     // Initialize the opengl context
     initGL();
     
-    camera = new Camera();
+    camera = createCamera();
+
     initImGui();
     // Loads the shader
     shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
@@ -273,7 +274,7 @@ bool init()
     buildGeometry();
     // Loads the texture into the GPU
     textureID = loadTexture("assets/textures/bricks2.jpg");
-
+    
     return true;
 }
 /**
