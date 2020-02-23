@@ -13,20 +13,19 @@
 #include "lib/ImGui/imgui_impl_opengl3.h"
 #include "lib/ImGui/imconfig.h"
 
-#include "Api/ApiDefine.h"
-#include "Api/ApiManager.h"
+#include "Api/RYGraphics.h"
 
 // Window current width
-unsigned int windowWidth = 800;
+extern unsigned int windowWidth = 800;
 // Window current height
-unsigned int windowHeight = 600;
+extern unsigned int windowHeight = 600;
 // Window title
 const char *windowTitle = "Basic Demo";
 // Window pointer
 GLFWwindow *window;
 
 // Shader object
-Shader *shader;
+Shader *shader, *shaderStereo;
 // Index (GPU) of the geometry buffer
 unsigned int VBO;
 // Index (GPU) vertex array object
@@ -34,13 +33,13 @@ unsigned int VAO;
 // Index (GPU) of the texture
 unsigned int textureID;
 
-Camera* camera;
 bool pressLeft;
+RYGraphics* Api;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
 
-/**
+/* *
  * Handles the window resize
  * @param{GLFWwindow} window pointer
  * @param{int} new width of the window
@@ -50,10 +49,11 @@ void resize(GLFWwindow *window, int width, int height)
 {
     windowWidth = width;
     windowHeight = height;
+	Api->camera->updateWH(glm::vec2(width, height));
     // Sets the OpenGL viewport size and position
     glViewport(0, 0, windowWidth, windowHeight);
 }
-/**
+/* *
  * Initialize the glfw library
  * @returns{bool} true if everything goes ok
  * */
@@ -137,8 +137,19 @@ void initImGui(){
 void renderImGui() {
 
     ImGui::Begin("API Controls");
-    ImGui::Text("FPS: %d", getFPS());
+    ImGui::Text("FPS: %d", Api->getFPS());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	
+	if (ImGui::Button("Stereoscopy"))
+	{
+		Api->stereoscopy = !Api->stereoscopy;
+		//std::cout << Api->stereoscopy << std::endl;
+	}
+	if (ImGui::Button("Left"))
+	{
+		Api->left = !Api->left;
+	}
+
     ImGui::End();
 
     // Render dear imgui into screen
@@ -158,6 +169,7 @@ void initGL()
     // Sets the clear color
     glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 }
+
 /**
  * Builds all the geometry buffers and
  * loads them up into the GPU
@@ -265,11 +277,12 @@ bool init()
     // Initialize the opengl context
     initGL();
     
-    camera = createCamera();
+    Api = new RYGraphics();
 
     initImGui();
     // Loads the shader
-    shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
+	shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
+	shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
     // Loads all the geometry into the GPU
     buildGeometry();
     // Loads the texture into the GPU
@@ -293,22 +306,22 @@ void processKeyboardInput(GLFWwindow *window)
     // Camera move
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 
-        camera->moveForward();
+        Api->camera->moveForward();
 
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 
-        camera->moveBackward();
+        Api->camera->moveBackward();
 
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 
-        camera->strafeLeft();
+        Api->camera->strafeLeft();
 
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 
-        camera->strafeRight();
+        Api->camera->strafeRight();
 
     }
 
@@ -316,8 +329,11 @@ void processKeyboardInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
     {
         // Reloads the shader
-        delete shader;
+		delete shader;
+		delete shaderStereo;
         shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
+		shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
+
     }
 }
 /**
@@ -331,8 +347,11 @@ void render()
     /** Draws code goes here **/
     // Use the shader
     shader->use();
-    shader->setMat4("view", camera->getWorlToViewMatrix());
-    shader->setMat4("projection", glm::perspective(glm::radians(90.0f), (float)windowWidth / (float)windowHeight, 0.1f, 1000.0f));
+	Api->camera->stereoViewProjectionMatrices( 0.5, 10.0, Api->left);
+	shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+	shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+	/*shader->setMat4("view", Api->camera->viewMatrix);
+	shader->setMat4("projection", Api->camera->projectionMatrix);*/
     // Binds the vertex array to be drawn
     glBindVertexArray(VAO);
     // Renders the triangle gemotry
@@ -395,7 +414,8 @@ int main(int argc, char const *argv[])
     // Deletes the vertex object from the GPU
     glDeleteBuffers(1, &VBO);
     // Destroy the shader
-    delete shader;
+	delete shader;
+	delete shaderStereo;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -410,7 +430,7 @@ int main(int argc, char const *argv[])
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
     if(pressLeft)
-        camera->mouseUpdate(glm::vec2(xpos, ypos));
+        Api->camera->mouseUpdate(glm::vec2(xpos, ypos));
 
 }
 

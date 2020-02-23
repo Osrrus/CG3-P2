@@ -22,6 +22,9 @@
     <Filter Include="Api">
       <UniqueIdentifier>{2c6052a3-1c20-4fdd-a760-69ed4afb2d7e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Api\components">
+      <UniqueIdentifier>{a8a9ef8b-ed54-4d1e-b961-64c116817608}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -54,8 +57,11 @@
     <ClCompile Include="lib\ImGui\imgui_demo.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Api\camera.cpp">
+    <ClCompile Include="Api\RYGraphics.cpp">
       <Filter>Api</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\components\camera.cpp">
+      <Filter>Api\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,14 +92,14 @@
     <ClInclude Include="lib\ImGui\imgui.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Api\ApiManager.h">
+    <ClInclude Include="Api\RYDefine.h">
       <Filter>Api</Filter>
     </ClInclude>
-    <ClInclude Include="Api\camera.h">
+    <ClInclude Include="Api\RYGraphics.h">
       <Filter>Api</Filter>
     </ClInclude>
-    <ClInclude Include="Api\ApiDefine.h">
-      <Filter>Api</Filter>
+    <ClInclude Include="Api\components\camera.h">
+      <Filter>Api\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +107,12 @@
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
     <None Include="assets\shaders\basic.vert">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\stereo.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\stereo.vert">
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
   </ItemGroup>
