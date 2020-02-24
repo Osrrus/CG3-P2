@@ -145,11 +145,11 @@ void renderImGui() {
 		Api->stereoscopy = !Api->stereoscopy;
 		//std::cout << Api->stereoscopy << std::endl;
 	}
-	if (ImGui::Button("Left"))
+	/*if (ImGui::Button("Left"))
 	{
 		Api->left = !Api->left;
 	}
-
+*/
     ImGui::End();
 
     // Render dear imgui into screen
@@ -338,8 +338,11 @@ void processKeyboardInput(GLFWwindow *window)
 }
 
 void renderStereo() {
-
 	shaderStereo->use();
+	glColorMask( GL_FALSE,
+		 GL_TRUE,
+		 GL_TRUE,
+		 GL_TRUE);
 	// Left eye matrices	
 	Api->camera->stereoViewProjectionMatrices(0.5, 10.0, Api->left);
 	shaderStereo->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
@@ -352,17 +355,25 @@ void renderStereo() {
 	glBindVertexArray(0);
 
 	shaderStereo->use();
+	glColorMask(GL_TRUE,
+		GL_FALSE,
+		GL_FALSE,
+		GL_TRUE);
 	// Right eye matrices	
 	Api->camera->stereoViewProjectionMatrices(0.5, 10.0, !Api->left);
 	shaderStereo->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
 	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
 	shaderStereo->setBool("left", !Api->left);
+	
 	// Binds the vertex array to be drawn
 	glBindVertexArray(VAO);
 	// Renders the triangle gemotry
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glBindVertexArray(0);
-
+	glColorMask(GL_TRUE,
+		GL_TRUE,
+		GL_TRUE,
+		GL_TRUE);
 }
 
 /**
