@@ -336,6 +336,35 @@ void processKeyboardInput(GLFWwindow *window)
 
     }
 }
+
+void renderStereo() {
+
+	shaderStereo->use();
+	// Left eye matrices	
+	Api->camera->stereoViewProjectionMatrices(0.5, 10.0, Api->left);
+	shaderStereo->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+	shaderStereo->setBool("left", Api->left);
+	// Binds the vertex array to be drawn
+	glBindVertexArray(VAO);
+	// Renders the triangle gemotry
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(0);
+
+	shaderStereo->use();
+	// Right eye matrices	
+	Api->camera->stereoViewProjectionMatrices(0.5, 10.0, !Api->left);
+	shaderStereo->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+	shaderStereo->setBool("left", !Api->left);
+	// Binds the vertex array to be drawn
+	glBindVertexArray(VAO);
+	// Renders the triangle gemotry
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(0);
+
+}
+
 /**
  * Render Function
  * */
@@ -346,17 +375,25 @@ void render()
 
     /** Draws code goes here **/
     // Use the shader
-    shader->use();
-	Api->camera->stereoViewProjectionMatrices( 0.5, 10.0, Api->left);
-	shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
-	shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
-	/*shader->setMat4("view", Api->camera->viewMatrix);
-	shader->setMat4("projection", Api->camera->projectionMatrix);*/
-    // Binds the vertex array to be drawn
-    glBindVertexArray(VAO);
-    // Renders the triangle gemotry
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+	if (!Api->stereoscopy)
+	{
+		shader->use();
+		//Api->camera->stereoViewProjectionMatrices( 0.5, 10.0, Api->left);
+		shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+		shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+		/*shader->setMat4("view", Api->camera->viewMatrix);
+		shader->setMat4("projection", Api->camera->projectionMatrix);*/
+		// Binds the vertex array to be drawn
+		glBindVertexArray(VAO);
+		// Renders the triangle gemotry
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(0);
+
+	}
+	else
+	{
+		renderStereo();
+	}
     // Swap the buffer
     
 }
