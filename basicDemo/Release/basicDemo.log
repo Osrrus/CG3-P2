@@ -1,23 +1,20 @@
-﻿  camera.cpp
-  RYGraphics.cpp
-D:\UCV\Proyectos\Uni\Graficas 3\Proyecto 2\basicDemo\Api\RYGraphics.cpp(18,30): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
-  imgui.cpp
-  imgui_demo.cpp
-  imgui_draw.cpp
-  imgui_impl_glfw.cpp
-  imgui_impl_opengl3.cpp
-  imgui_widgets.cpp
+﻿  RYGraphics.cpp
+D:\UCV\Proyectos\Uni\Graficas 3\Proyecto 2\basicDemo\Api\RYGraphics.cpp(24,30): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+  camera.cpp
+D:\UCV\Proyectos\Uni\Graficas 3\Proyecto 2\basicDemo\Api\components\camera.cpp(107,13): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+D:\UCV\Proyectos\Uni\Graficas 3\Proyecto 2\basicDemo\Api\components\camera.cpp(108,14): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
   main.cpp
-  Shader.cpp
-  stb_image.cpp
-  glad.c
   Generando código
-<<<<<<< HEAD
-  17 of 1409 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
-=======
-  5 of 1415 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
->>>>>>> 76335198951b7db50a9b9c2824e533a48b9b257e
-    0 functions were new in current compilation
-    19 functions had inline decision re-evaluated but remain unchanged
+  125 of 1421 functions ( 8.8%) were compiled, the rest were copied from previous compilation.
+    9 functions were new in current compilation
+    35 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
-  basicDemo.vcxproj -> C:\Users\58424\Desktop\Graficas 3\CG3-P2\Release\basicDemo.exe
+  basicDemo.vcxproj -> D:\UCV\Proyectos\Uni\Graficas 3\Proyecto 2\Release\basicDemo.exe
