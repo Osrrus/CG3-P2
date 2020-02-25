@@ -16,6 +16,7 @@
 #include "lib/ImGui/imgui_impl_opengl3.h"
 #include "lib/ImGui/imconfig.h"
 
+#include "Api/RYDefine.h"
 #include "Api/RYGraphics.h"
 
 // Window current width
