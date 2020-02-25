@@ -7,11 +7,18 @@ class RYGraphics
         float framesPerSecond,lastTime;
         int fps;
         float currentTime;
-        
+
     public:
-        Camera *camera;
+		bool stereoscopy;
+		bool left;
+		Camera *camera;
+		/* Esteroscopy */
+		Camera *rightEye;
+		Camera *leftEye;
+
         RYGraphics();
         ~RYGraphics();
+
         int getFPS();
 };
 
