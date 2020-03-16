@@ -22,7 +22,7 @@ C:\Users\Yuliana\Desktop\CG3-P2\basicDemo\Api\RYGraphics.cpp(24,30): warning C42
   stb_image.cpp
   glad.c
   Generando código
-  Compiler switch has changed, fall back to full compilation.
-  All 1423 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Previous IPDB not found, fall back to full compilation.
+  All 1419 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Generación de código finalizada
-  basicDemo.vcxproj -> C:\Users\Yuliana\Desktop\CG3-P2\Release\basicDemo.exe
+  basicDemo.vcxproj -> C:\Users\Yuliana\Desktop\CG3-P2\\Release\basicDemo.exe

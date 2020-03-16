@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <iostream>
+#include <map>
 #include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -19,6 +20,8 @@
 #include "Api/RYDefine.h"
 #include "Api/RYGraphics.h"
 
+//assimp
+Assimp::Importer importer;
 // Window current width
 extern unsigned int windowWidth = 800;
 // Window current height
