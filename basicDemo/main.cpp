@@ -19,6 +19,7 @@
 
 #include "Api/RYDefine.h"
 #include "Api/RYGraphics.h"
+#include "Api/particle/particleSystem.h"
 
 //assimp
 Assimp::Importer importer;
@@ -27,7 +28,7 @@ extern unsigned int windowWidth = 800;
 // Window current height
 extern unsigned int windowHeight = 600;
 // Window title
-const char *windowTitle = "Basic Demo";
+const char *windowTitle = "CG3-P2";
 // Window pointer
 GLFWwindow *window;
 
@@ -42,6 +43,7 @@ unsigned int textureID;
 
 bool pressLeft;
 RYGraphics* Api;
+particleSystem* parSystem;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
@@ -292,6 +294,7 @@ bool init()
 	shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
     // Loads all the geometry into the GPU
     buildGeometry();
+    parSystem = new particleSystem();
     // Loads the texture into the GPU
     textureID = loadTexture("assets/textures/bricks2.jpg");
     
@@ -432,7 +435,7 @@ void update()
 
         // Renders everything
         render();
-
+        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
         renderImGui();
         // Check and call events
         glfwSwapBuffers(window);
@@ -471,6 +474,7 @@ int main(int argc, char const *argv[])
     // Destroy the shader
 	delete shader;
 	delete shaderStereo;
+    delete parSystem;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

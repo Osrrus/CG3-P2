@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{614115ED-6774-44AE-9F91-111016EBC0EB}</ProjectGuid>
     <RootNamespace>basicDemo</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -142,6 +142,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Api\components\camera.cpp" />
+    <ClCompile Include="Api\particle\particle.cpp" />
+    <ClCompile Include="Api\particle\particleSystem.cpp" />
     <ClCompile Include="Api\RYGraphics.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="lib\ImGui\imgui.cpp" />
@@ -156,6 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Api\components\camera.h" />
+    <ClInclude Include="Api\particle\particle.h" />
+    <ClInclude Include="Api\particle\particleSystem.h" />
     <ClInclude Include="Api\RYDefine.h" />
     <ClInclude Include="Api\RYGraphics.h" />
     <ClInclude Include="lib\ImGui\imconfig.h" />
@@ -169,6 +173,8 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Api\particle\shader\particle.frag" />
+    <None Include="Api\particle\shader\particle.vert" />
     <None Include="assets\shaders\basic.frag" />
     <None Include="assets\shaders\basic.vert" />
     <None Include="assets\shaders\stereo.frag" />
