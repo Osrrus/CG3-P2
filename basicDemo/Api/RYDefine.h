@@ -11,8 +11,11 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+
 #include "components/camera.h"
 
 #include "../Shader.h"
 
 #include <iostream>
+
+//unsigned int loadT(const char* path);

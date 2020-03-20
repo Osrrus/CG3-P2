@@ -1,3 +1,4 @@
+#pragma once
 #include "particle.h"
 
 particle::particle():
@@ -19,6 +20,9 @@ void particle::draw(Shader *shader,unsigned int particleVAO)
 	model = glm::translate(model, this->position);
 	model = glm::scale(model, this->scale);
 	shader->setMat4("model", model);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, this->texture);
 
     glBindVertexArray(particleVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);

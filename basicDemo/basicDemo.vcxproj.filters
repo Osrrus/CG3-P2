@@ -119,6 +119,9 @@
     <ClInclude Include="Api\particle\particleSystem.h">
       <Filter>Api\particle</Filter>
     </ClInclude>
+    <ClInclude Include="Api\components\loadTexture.h">
+      <Filter>Api\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\basic.frag">

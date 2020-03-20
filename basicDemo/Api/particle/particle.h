@@ -15,7 +15,7 @@ class particle
         ~particle();
         void draw(Shader*,unsigned int);
         void lookAt();
-        unsigned int VBO, VAO;
+        unsigned int texture;
 };
 
 
