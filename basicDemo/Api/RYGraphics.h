@@ -20,6 +20,7 @@ class RYGraphics
         ~RYGraphics();
 
         int getFPS();
+        float getDeltaTime();
 };
 
 

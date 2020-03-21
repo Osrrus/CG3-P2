@@ -1,7 +1,36 @@
+<<<<<<< HEAD
 ﻿  main.cpp
   Generando código
   16 of 1419 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     28 functions had inline decision re-evaluated but remain unchanged
+=======
+﻿  particleSystem.cpp
+D:\UCV\Proyectos\Uni\Graficas 3\CG3-P2\basicDemo\Api\particle\particleSystem.cpp(93,29): warning C4018: '<': no coinciden signed/unsigned
+D:\UCV\Proyectos\Uni\Graficas 3\CG3-P2\basicDemo\Api\particle\particleSystem.cpp(108,31): warning C4018: '<': no coinciden signed/unsigned
+D:\UCV\Proyectos\Uni\Graficas 3\CG3-P2\basicDemo\include\glm\detail\type_vec4.inl(541,106): warning C4244: 'argumento': conversión de 'U' a 'T'; posible pérdida de datos
+          with
+          [
+              U=double
+          ]
+          and
+          [
+              T=float
+          ]
+D:\UCV\Proyectos\Uni\Graficas 3\CG3-P2\basicDemo\Api\particle\particleSystem.cpp(80): message : Vea la referencia a la creación de una instancia de la función plantilla "glm::vec<4,float,0> &glm::vec<4,float,0>::operator +=<double>(U)" que se está compilando
+          with
+          [
+              U=double
+          ]
+D:\UCV\Proyectos\Uni\Graficas 3\CG3-P2\basicDemo\Api\particle\particleSystem.cpp(80): message : Vea la referencia a la creación de una instancia de la función plantilla "glm::vec<4,float,0> &glm::vec<4,float,0>::operator +=<double>(U)" que se está compilando
+          with
+          [
+              U=double
+          ]
+  Generando código
+  2 of 1472 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    26 functions had inline decision re-evaluated but remain unchanged
+>>>>>>> ec8683a76ebb25ed1dd237d7b99c3e7a9653575b
   Generación de código finalizada
-  basicDemo.vcxproj -> C:\Users\Yuliana\Desktop\CG3-P2\\Release\basicDemo.exe
+  basicDemo.vcxproj -> D:\UCV\Proyectos\Uni\Graficas 3\CG3-P2\\Release\basicDemo.exe

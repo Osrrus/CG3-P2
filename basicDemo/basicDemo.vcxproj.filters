@@ -25,6 +25,12 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Api\particle">
+      <UniqueIdentifier>{1fca94b7-2e15-46ed-9713-3de519808d0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Api\particle\shader">
+      <UniqueIdentifier>{3160f094-a453-4ab6-b503-c076e4ba9cda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -62,6 +68,12 @@
     </ClCompile>
     <ClCompile Include="Api\components\camera.cpp">
       <Filter>Api\components</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\particle\particle.cpp">
+      <Filter>Api\particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\particle\particleSystem.cpp">
+      <Filter>Api\particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +113,15 @@
     <ClInclude Include="Api\components\camera.h">
       <Filter>Api\components</Filter>
     </ClInclude>
+    <ClInclude Include="Api\particle\particle.h">
+      <Filter>Api\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\particle\particleSystem.h">
+      <Filter>Api\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\components\loadTexture.h">
+      <Filter>Api\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\basic.frag">
@@ -114,6 +135,12 @@
     </None>
     <None Include="assets\shaders\stereo.vert">
       <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="Api\particle\shader\particle.frag">
+      <Filter>Api\particle\shader</Filter>
+    </None>
+    <None Include="Api\particle\shader\particle.vert">
+      <Filter>Api\particle\shader</Filter>
     </None>
   </ItemGroup>
 </Project>

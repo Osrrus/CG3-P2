@@ -6,7 +6,6 @@
 #include <glm/gtx/transform.hpp>
 #include <iostream>
 #include <map>
-#include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -19,6 +18,7 @@
 
 #include "Api/RYDefine.h"
 #include "Api/RYGraphics.h"
+#include "Api/particle/particleSystem.h"
 
 //assimp
 Assimp::Importer importer;
@@ -27,7 +27,7 @@ extern unsigned int windowWidth = 800;
 // Window current height
 extern unsigned int windowHeight = 600;
 // Window title
-const char *windowTitle = "Basic Demo";
+const char *windowTitle = "CG3-P2";
 // Window pointer
 GLFWwindow *window;
 
@@ -42,6 +42,7 @@ unsigned int textureID;
 
 bool pressLeft;
 RYGraphics* Api;
+particleSystem* parSystem;
 
 
 
@@ -241,62 +242,7 @@ void buildGeometry()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
     glBindVertexArray(0);
 }
-/**
- * Loads a texture into the GPU
- * @param{const char} path of the texture file
- * @returns{unsigned int} GPU texture index
- * */
-unsigned int loadTexture(const char *path)
-{
-    unsigned int id;
-    // Creates the texture on GPU
-    glGenTextures(1, &id);
-    // Loads the texture
-    int textureWidth, textureHeight, numberOfChannels;
-    // Flips the texture when loads it because in opengl the texture coordinates are flipped
-    stbi_set_flip_vertically_on_load(true);
-    // Loads the texture file data
-    unsigned char *data = stbi_load(path, &textureWidth, &textureHeight, &numberOfChannels, 0);
-    if (data)
-    {
-        // Gets the texture channel format
-        GLenum format;
-        switch (numberOfChannels)
-        {
-        case 1:
-            format = GL_RED;
-            break;
-        case 3:
-            format = GL_RGB;
-            break;
-        case 4:
-            format = GL_RGBA;
-            break;
-        }
 
-        // Binds the texture
-        glBindTexture(GL_TEXTURE_2D, id);
-        // Creates the texture
-        glTexImage2D(GL_TEXTURE_2D, 0, format, textureWidth, textureHeight, 0, format, GL_UNSIGNED_BYTE, data);
-        // Creates the texture mipmaps
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        // Set the filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else
-    {
-        std::cout << "ERROR:: Unable to load texture " << path << std::endl;
-        glDeleteTextures(1, &id);
-    }
-    // We dont need the data texture anymore because is loaded on the GPU
-    stbi_image_free(data);
-
-    return id;
-}
 /**
  * Initialize everything
  * @returns{bool} true if everything goes ok
@@ -318,8 +264,9 @@ bool init()
 	shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
     // Loads all the geometry into the GPU
     buildGeometry();
+    parSystem = new particleSystem();
     // Loads the texture into the GPU
-    textureID = loadTexture("assets/textures/bricks2.jpg");
+    //textureID = loadTexture("assets/textures/bricks2.jpg");
     
     return true;
 }
@@ -458,7 +405,7 @@ void update()
 
         // Renders everything
         render();
-
+        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
         renderImGui();
         // Check and call events
         glfwSwapBuffers(window);
@@ -497,6 +444,7 @@ int main(int argc, char const *argv[])
     // Destroy the shader
 	delete shader;
 	delete shaderStereo;
+    delete parSystem;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
