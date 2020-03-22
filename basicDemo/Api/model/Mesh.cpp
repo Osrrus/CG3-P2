@@ -20,18 +20,30 @@ Mesh::MeshEntry::~MeshEntry()
         glDeleteBuffers(1, &m_IBO);
     }
 }
+void printInfo(vector<Vertex> vertices) 
+{
 
+    for (int i = 0; i < vertices.size(); i++)
+    {
+        cout << vertices[i].Position.x << " " << vertices[i].Position.y << " " << vertices[i].Position.z << " " << endl;
+        /*cout << vertices[i].TexCoords.x << " " << vertices[i].TexCoords.y << endl;
+        cout << vertices[i].Normal.x << " " << vertices[i].Normal.y << " " << vertices[i].Normal.z << " " << endl;*/
+    }
+
+}
 void Mesh::MeshEntry::init(vector<Vertex> vertices, vector<unsigned int> indices)
 {
     m_Size = indices.size();
-    cout << m_Size << endl;
-    glGenBuffers(1, &m_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    /*cout << m_Size << endl;*/
+    printInfo(vertices);
+    glGenBuffers(1, &this->m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
-    glGenBuffers(1, &m_IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_Size, &indices[0], GL_STATIC_DRAW);
+    glGenBuffers(1, &this->m_IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_Size, (int*)&indices[0], GL_STATIC_DRAW);
+    //cout << this->m_IBO << "  " << this->m_VBO << endl;
 
 }
 
@@ -53,7 +65,7 @@ bool Mesh::LoadMesh(const std::string& Filename)
     bool Ret = false;
     Assimp::Importer Importer;
 
-    const aiScene* pScene = Importer.ReadFile(Filename.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+    const aiScene* pScene = Importer.ReadFile(Filename.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs );
 
     if (pScene) {
         Ret = InitFromScene(pScene, Filename);
@@ -76,8 +88,8 @@ void Mesh::draw()
 
         glBindBuffer(GL_ARRAY_BUFFER, m_Entries[i].m_VBO);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)sizeof(glm::vec3));
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)(sizeof(glm::vec3)+ sizeof(glm::vec2)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)(sizeof(float)*3));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)(sizeof(float)*5));
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Entries[i].m_IBO);
 
@@ -87,6 +99,7 @@ void Mesh::draw()
             m_Textures[MaterialIndex]->Bind(GL_TEXTURE0);
         }*/
         glDrawElements(GL_TRIANGLES, m_Entries[i].m_Size, GL_UNSIGNED_INT, 0);
+            //cout << m_Entries[i].m_IBO << "  " << m_Entries[i].m_VBO << endl;
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
@@ -100,7 +113,9 @@ bool Mesh::InitFromScene(const aiScene* scene, const std::string& Filename)
     m_Entries.resize(scene->mNumMeshes);
 
     //Recorremos los mesh de la escena uno por uno
-    for (unsigned int i = 0; i < m_Entries.size(); i++) {
+    int m_EntSize = m_Entries.size();
+    cout << m_EntSize << endl;
+    for (unsigned int i = 0; i < m_EntSize; i++) {
         const aiMesh* paiMesh = scene->mMeshes[i];
         InitMesh(i, paiMesh);
     }
@@ -133,6 +148,7 @@ void Mesh::InitMesh(unsigned int Index, const aiMesh* paiMesh)
         Indices.push_back(Face.mIndices[0]);
         Indices.push_back(Face.mIndices[1]);
         Indices.push_back(Face.mIndices[2]);
+        cout << Face.mIndices[0] << " " << Face.mIndices[1] << " " << Face.mIndices[2] << " " << endl;
     }
 
     m_Entries[Index].init(Vertices, Indices);

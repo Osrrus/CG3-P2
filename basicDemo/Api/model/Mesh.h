@@ -18,7 +18,6 @@ struct Vertex {
     //// bitangent
     //glm::vec3 Bitangent;
 
-    Vertex() {}
     Vertex(glm::vec3 Pos, glm::vec2 TexC, glm::vec3 Nor) {
         Position = Pos;
         Normal = Nor;
@@ -60,9 +59,7 @@ private:
 
     };
 
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-    vector<Texture> textures;
+
     string m_filename;
     std::vector<MeshEntry> m_Entries;
     //std::vector<Texture*> m_Textures;

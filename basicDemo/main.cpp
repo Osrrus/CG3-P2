@@ -50,30 +50,6 @@ particleSystem* parSystem;
 Mesh* mesh;
 
 
-bool DoTheImportThing(const std::string& pFile)
-{
-    // Create an instance of the Importer class
-    Assimp::Importer importer;
-    // And have it read the given file with some example postprocessing
-    // Usually - if speed is not the most important aspect for you - you'll 
-    // propably to request more postprocessing than we do in this example.
-    const aiScene* scene = importer.ReadFile(pFile,
-        aiProcess_CalcTangentSpace |
-        aiProcess_Triangulate |
-        aiProcess_JoinIdenticalVertices |
-        aiProcess_SortByPType);
-
-    // If the import failed, report it
-    if (!scene)
-    {
-        std::cout <<(importer.GetErrorString())<<std::endl;
-        return false;
-    }
-    // Now we can access the file's contents. 
-    //DoTheSceneProcessing(scene);
-    // We're done. Everything will be cleaned up by the importer destructor
-    return true;
-}
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
 
@@ -272,6 +248,7 @@ bool init()
     // Loads the texture into the GPU
     //textureID = loadTexture("assets/textures/bricks2.jpg");
     string path = "assets/models/crate.obj";
+    //path = "assets/models/crysis.fbx";
     //Loads 3D model
     mesh = new Mesh();
     if (!mesh->LoadMesh(path))
@@ -283,7 +260,7 @@ bool init()
         cout << "cargó modelo" << endl;
 
     }
-    
+   
     return true;
 }
 /**
@@ -391,18 +368,21 @@ void render()
 		/*shader->setMat4("view", Api->camera->viewMatrix);
 		shader->setMat4("projection", Api->camera->projectionMatrix);*/
 		// Binds the vertex array to be drawn
-		//glBindVertexArray(VAO);
+		glBindVertexArray(VAO);
 		//// Renders the triangle gemotry
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glBindVertexArray(0);
-  //      
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(0);
 
-         mesh->draw();
         
 
 	}
 	else
 	{
+        shader->use();
+       
+        shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+        shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+        mesh->draw();
 		//renderStereo();
 	}
     // Swap the buffer
@@ -425,7 +405,7 @@ void update()
 
         // Renders everything
         render();
-        //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
         
         renderImGui();
         // Check and call events
