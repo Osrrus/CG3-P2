@@ -368,10 +368,11 @@ void render()
 		/*shader->setMat4("view", Api->camera->viewMatrix);
 		shader->setMat4("projection", Api->camera->projectionMatrix);*/
 		// Binds the vertex array to be drawn
-		glBindVertexArray(VAO);
-		//// Renders the triangle gemotry
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
+        mesh->draw();
+		//glBindVertexArray(VAO);
+		// Renders the triangle gemotry
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glBindVertexArray(0);
 
         
 
