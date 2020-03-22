@@ -112,9 +112,9 @@ void Camera::stereoViewProjectionMatrices(float IOD, float depthZ, bool leftEye)
 {
 
 	glm::vec3 direction_z(0, 0, -1);
-	float left_right_direction = -1.0f;
+	float left_right_direction = -0.5f;
 	if (leftEye)
-		left_right_direction = 1.0f;
+		left_right_direction = 0.5f;
 	float aspect_ratio = (float)width / (float)height;
 	
 	projectionMatrix = glm::perspective(glm::radians(fov/2.0f),aspect_ratio, nearZ, farZ);

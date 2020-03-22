@@ -19,6 +19,7 @@
 #include "Api/RYDefine.h"
 #include "Api/RYGraphics.h"
 #include "Api/particle/particleSystem.h"
+#include "Api/model/Mesh.h"
 
 //assimp
 Assimp::Importer importer;
@@ -40,10 +41,13 @@ unsigned int VAO;
 // Index (GPU) of the texture
 unsigned int textureID;
 
+//Particle system
 bool pressLeft;
 RYGraphics* Api;
 particleSystem* parSystem;
 
+//Load models
+Mesh* mesh;
 
 
 bool DoTheImportThing(const std::string& pFile)
@@ -267,6 +271,18 @@ bool init()
     parSystem = new particleSystem();
     // Loads the texture into the GPU
     //textureID = loadTexture("assets/textures/bricks2.jpg");
+    string path = "assets/models/crate.obj";
+    //Loads 3D model
+    mesh = new Mesh();
+    if (!mesh->LoadMesh(path))
+    {
+        cout << "no cargó modelo" << endl;
+        return false;
+    }
+    else {
+        cout << "cargó modelo" << endl;
+
+    }
     
     return true;
 }
@@ -375,15 +391,19 @@ void render()
 		/*shader->setMat4("view", Api->camera->viewMatrix);
 		shader->setMat4("projection", Api->camera->projectionMatrix);*/
 		// Binds the vertex array to be drawn
-		glBindVertexArray(VAO);
-		// Renders the triangle gemotry
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
+		//glBindVertexArray(VAO);
+		//// Renders the triangle gemotry
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glBindVertexArray(0);
+  //      
+
+         mesh->draw();
+        
 
 	}
 	else
 	{
-		renderStereo();
+		//renderStereo();
 	}
     // Swap the buffer
     
@@ -405,7 +425,8 @@ void update()
 
         // Renders everything
         render();
-        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+        //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+        
         renderImGui();
         // Check and call events
         glfwSwapBuffers(window);
@@ -445,7 +466,7 @@ int main(int argc, char const *argv[])
 	delete shader;
 	delete shaderStereo;
     delete parSystem;
-
+    delete mesh;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
