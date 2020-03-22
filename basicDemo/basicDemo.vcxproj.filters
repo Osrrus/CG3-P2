@@ -31,6 +31,9 @@
     <Filter Include="Api\particle\shader">
       <UniqueIdentifier>{3160f094-a453-4ab6-b503-c076e4ba9cda}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Api\model">
+      <UniqueIdentifier>{70673c15-e613-4d3e-836d-fdfa53a8531d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -74,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="Api\particle\particleSystem.cpp">
       <Filter>Api\particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\model\Mesh.cpp">
+      <Filter>Api\model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="Api\components\loadTexture.h">
       <Filter>Api\components</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\model\Mesh.h">
+      <Filter>Api\model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
