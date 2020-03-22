@@ -341,11 +341,11 @@ bool init()
     mesh = new Mesh();
     if (!mesh->LoadMesh(path))
     {
-        cout << "no cargó modelo" << endl;
+        cout << "no cargï¿½ modelo" << endl;
         return false;
     }
     else {
-        cout << "cargó modelo" << endl;
+        cout << "cargï¿½ modelo" << endl;
 
     }
    
@@ -450,15 +450,16 @@ void render()
     // Use the shader
 	if (!Api->stereoscopy)
 	{
-		//shader->use();
-		////Api->camera->stereoViewProjectionMatrices( 0.5, 10.0, Api->left);
-		//shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
-		//shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
-		///*shader->setMat4("view", Api->camera->viewMatrix);
-		//shader->setMat4("projection", Api->camera->projectionMatrix);*/
-		//// Binds the vertex array to be drawn
+		shader->use();
+		//Api->camera->stereoViewProjectionMatrices( 0.5, 10.0, Api->left);
+		shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+		shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+		/*shader->setMat4("view", Api->camera->viewMatrix);
+		shader->setMat4("projection", Api->camera->projectionMatrix);*/
+		// Binds the vertex array to be drawn
+        mesh->draw();
 		//glBindVertexArray(VAO);
-		////// Renders the triangle gemotry
+		// Renders the triangle gemotry
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		//glBindVertexArray(0);
 

@@ -36,15 +36,30 @@ void Mesh::MeshEntry::init(vector<Vertex> vertices, vector<unsigned int> indices
     m_Size = indices.size();
     /*cout << m_Size << endl;*/
     printInfo(vertices);
+
+    glGenVertexArrays(1, &this->m_VAO);
     glGenBuffers(1, &this->m_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-
     glGenBuffers(1, &this->m_IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_Size, (int*)&indices[0], GL_STATIC_DRAW);
-    //cout << this->m_IBO << "  " << this->m_VBO << endl;
 
+    glBindVertexArray(this->m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    // vertex normals
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+    // vertex texture coords
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+
+    //cout << this->m_IBO << "  " << this->m_VBO << endl;
+    glBindVertexArray(0);
 }
 
 
@@ -82,7 +97,7 @@ void Mesh::draw()
     int m_EntSize = m_Entries.size();
     for (unsigned int i = 0; i < m_EntSize; i++)
     {
-        glEnableVertexAttribArray(0);
+        /*glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
 
@@ -98,12 +113,14 @@ void Mesh::draw()
         if (MaterialIndex < m_Textures.size() && m_Textures[MaterialIndex]) {
             m_Textures[MaterialIndex]->Bind(GL_TEXTURE0);
         }*/
+        glBindVertexArray(m_Entries[i].m_VAO);
         glDrawElements(GL_TRIANGLES, m_Entries[i].m_Size, GL_UNSIGNED_INT, 0);
             //cout << m_Entries[i].m_IBO << "  " << m_Entries[i].m_VBO << endl;
+        glBindVertexArray(0);
 
-        glDisableVertexAttribArray(0);
+        /*glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(2);*/
     }
 
 }
