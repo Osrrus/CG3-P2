@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="Api\components\camera.cpp" />
     <ClCompile Include="Api\model\Mesh.cpp" />
+    <ClCompile Include="Api\model\Obj.cpp" />
     <ClCompile Include="Api\particle\particle.cpp" />
     <ClCompile Include="Api\particle\particleSystem.cpp" />
     <ClCompile Include="Api\RYGraphics.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Api\components\camera.h" />
     <ClInclude Include="Api\components\loadTexture.h" />
     <ClInclude Include="Api\model\Mesh.h" />
+    <ClInclude Include="Api\model\Obj.h" />
     <ClInclude Include="Api\particle\particle.h" />
     <ClInclude Include="Api\particle\particleSystem.h" />
     <ClInclude Include="Api\RYDefine.h" />

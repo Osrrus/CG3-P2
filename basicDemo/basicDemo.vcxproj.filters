@@ -81,6 +81,9 @@
     <ClCompile Include="Api\model\Mesh.cpp">
       <Filter>Api\model</Filter>
     </ClCompile>
+    <ClCompile Include="Api\model\Obj.cpp">
+      <Filter>Api\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -129,6 +132,9 @@
       <Filter>Api\components</Filter>
     </ClInclude>
     <ClInclude Include="Api\model\Mesh.h">
+      <Filter>Api\model</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\model\Obj.h">
       <Filter>Api\model</Filter>
     </ClInclude>
   </ItemGroup>
