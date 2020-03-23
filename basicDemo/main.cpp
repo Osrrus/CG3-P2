@@ -23,6 +23,9 @@
 #include "Api/particle/particleSystem.h"
 #include "Api/model/Mesh.h"
 #include "Api/model/Obj.h"
+#include "Api/light/light.h"
+#include "Api/light/pointLight.h"
+
 //assimp
 Assimp::Importer importer;
 // Window current width
@@ -50,97 +53,15 @@ particleSystem* parSystem;
 
 
 std::vector<Obj*> objects;
-
+light* dirLight;
+pointLight* pLight;
 //Load models
 Mesh* mesh;
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
-Obj* loadObj(const char* path)
-{
 
-    //FILE* file;
-    Obj* newObj = new Obj();
-  
-    std::ifstream file = std::ifstream(path);
-    if (!file.is_open()) {
-        std::cout << "No se encuentra: " << path << std::endl;
-        
-    }
-
-
-    std::vector<glm::vec3> auxVertices;
-    std::vector<glm::vec3> auxNormals;
-    std::vector<glm::vec2> auxUvs;
-
-    std::vector<unsigned int> indexVertices;
-    std::vector<unsigned int> indexNormals;
-    std::vector<unsigned int> indexUvs;
-
-    while (file)
-    {
-        std::string token, first, trash;
-        float vx, vy, vz;
-        getline(file, token);
-        std::istringstream str(token);
-        str >> first;
-        if (first == "v")
-        {
-            glm::vec3 vertex;
-            //fscanf_s(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-            str >> vertex.x >> vertex.y >> vertex.z;
-            auxVertices.push_back(vertex);
-        }
-        else if (first == "vt")
-        {
-            glm::vec2 uv;
-            //fscanf_s(file, "%f %f\n", &uv.x, &uv.y);}
-            str >> uv.x >> uv.y;
-            auxUvs.push_back(uv);
-        }
-        else if (first == "vn")
-        {
-
-            glm::vec3 normals;
-            //fscanf_s(file, "%f %f %f\n", &normals.x, &normals.y, &normals.z);
-            str >> normals.x >> normals.y >> normals.z;
-            auxNormals.push_back(normals);
-        }
-        else if (first == "f")
-        {
-
-            //unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-            unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-            std::replace_if(std::begin(token), std::end(token), [](const char& ch) { return ch == '/'; }, ' ');
-
-            std::istringstream face_str(token);
-            face_str.ignore(token.length(), ' ');
-
-            face_str >> vertexIndex[0] >> uvIndex[0] >> normalIndex[0]
-                >> vertexIndex[1] >> uvIndex[1] >> normalIndex[1]
-                >> vertexIndex[2] >> uvIndex[2] >> normalIndex[2];
-
-            indexVertices.push_back(vertexIndex[0] - 1);
-            indexVertices.push_back(vertexIndex[1] - 1);
-            indexVertices.push_back(vertexIndex[2] - 1);
-
-            indexUvs.push_back(uvIndex[0] - 1);
-            indexUvs.push_back(uvIndex[1] - 1);
-            indexUvs.push_back(uvIndex[2] - 1);
-
-            indexNormals.push_back(normalIndex[0] - 1);
-            indexNormals.push_back(normalIndex[1] - 1);
-            indexNormals.push_back(normalIndex[2] - 1);
-        }
-    }
-
-    newObj->setObj(auxVertices, auxUvs, auxNormals, indexVertices, indexUvs, indexNormals);
-
-    //fclose(file);
-
-    return newObj;
-}
 /* *
  * Handles the window resize
  * @param{GLFWwindow} window pointer
@@ -247,11 +168,29 @@ void renderImGui() {
 		Api->stereoscopy = !Api->stereoscopy;
 		//std::cout << Api->stereoscopy << std::endl;
 	}
-	/*if (ImGui::Button("Left"))
-	{
-		Api->left = !Api->left;
-	}
-*/
+    //ImGui::InputText("float", buf, IM_ARRAYSIZE(buf));
+
+    if (ImGui::TreeNode("Directional Light"))
+    {
+        
+        ImGui::Text("Direction of light");
+        ImGui::SliderFloat("float x", &dirLight->dir.x, -10.0f, 10.0f);
+        ImGui::SliderFloat("float y", &dirLight->dir.y, -10.0f, 10.0f);
+        ImGui::SliderFloat("float z", &dirLight->dir.z, -10.0f, 10.0f);
+
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Point Light"))
+    {
+
+        ImGui::Text("Position of light");
+        ImGui::SliderFloat("float x", &pLight->dir.x, -10.0f, 10.0f);
+        ImGui::SliderFloat("float y", &pLight->dir.y, -10.0f, 10.0f);
+        ImGui::SliderFloat("float z", &pLight->dir.z, -10.0f, 10.0f);
+
+        ImGui::TreePop();
+    }
     ImGui::End();
 
     // Render dear imgui into screen
@@ -335,8 +274,8 @@ bool init()
     parSystem = new particleSystem();
     // Loads the texture into the GPU
     //textureID = loadTexture("assets/textures/bricks2.jpg");
-    string path = "assets/models/Crate.obj";
-    //path = "assets/models/crysis.fbx";
+    string path = "assets/models/cat/catS.obj";
+    path = "assets/models/cottage_obj/cottage_obj.obj";
     //Loads 3D model
     mesh = new Mesh();
     if (!mesh->LoadMesh(path))
@@ -346,10 +285,11 @@ bool init()
     }
     else {
         cout << "carg� modelo" << endl;
-
+        mesh->text.load("assets/textures/bricks2.jpg");
     }
-   
-    objects.push_back(loadObj("assets/models/cat.obj"));
+    dirLight = new light(glm::vec3(-3.0f));
+    pLight = new pointLight(glm::vec3(-3.0f));
+    //objects.push_back(loadObj("assets/models/cat.obj"));
     return true;
 }
 /**
@@ -411,10 +351,11 @@ void renderStereo() {
 	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
 	shaderStereo->setBool("left", Api->left);
 	// Binds the vertex array to be drawn
-	glBindVertexArray(VAO);
-	// Renders the triangle gemotry
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
+	//glBindVertexArray(VAO);
+	//// Renders the triangle gemotry
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	//glBindVertexArray(0);
+    mesh->draw();
 
 	shaderStereo->use();
 	glColorMask(GL_TRUE,
@@ -427,12 +368,13 @@ void renderStereo() {
 	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
 	shaderStereo->setBool("left", !Api->left);
 	
-	// Binds the vertex array to be drawn
-	glBindVertexArray(VAO);
-	// Renders the triangle gemotry
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
-	glColorMask(GL_TRUE,
+	//// Binds the vertex array to be drawn
+	//glBindVertexArray(VAO);
+	//// Renders the triangle gemotry
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	//glBindVertexArray(0);
+    mesh->draw();
+    glColorMask(GL_TRUE,
 		GL_TRUE,
 		GL_TRUE,
 		GL_TRUE);
@@ -454,7 +396,17 @@ void render()
 		//Api->camera->stereoViewProjectionMatrices( 0.5, 10.0, Api->left);
 		shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
 		shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
-		/*shader->setMat4("view", Api->camera->viewMatrix);
+        shader->setVec3("viewPos", Api->camera->position);
+        shader->setInt("text", mesh->text.bind(0));
+        //Directional light
+        shader->setVec3("dirLight.pos", dirLight->pos);
+        shader->setVec3("dirLight.dir", dirLight->dir);
+        shader->setVec3("dirLight.ambient", dirLight->color.ambient);
+        shader->setVec3("dirLight.diffuse", dirLight->color.diffuse);
+        shader->setVec3("dirLight.specular", dirLight->color.specular);
+        shader->setBool("dirLight.on", dirLight->ON);
+
+	    /*shader->setMat4("view", Api->camera->viewMatrix);
 		shader->setMat4("projection", Api->camera->projectionMatrix);*/
 		// Binds the vertex array to be drawn
         mesh->draw();
@@ -462,27 +414,24 @@ void render()
 		// Renders the triangle gemotry
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		//glBindVertexArray(0);
-
-        
-
 	}
 	else
 	{
-		//renderStereo();
+		renderStereo();
 	}
-        shader->use();
-       
-        shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
-        shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
-        /*shader->setMat4("view", glm::mat4(1.0f));
-        shader->setMat4("projection", glm::mat4(1.0f));*/
+        //shader->use();
+        
+        //shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+        //shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+        ///*shader->setMat4("view", glm::mat4(1.0f));
+        //shader->setMat4("projection", glm::mat4(1.0f));*/
         //mesh->draw();
-        for (int i = 0; i < objects.size(); i++)
-        {
-         /*   shader->setMat4("Model", objects[i]->model);
-            shader->setVec3("color", objects[i]->color);*/
-            objects[i]->Draw();
-        }
+        ////for (int i = 0; i < objects.size(); i++)
+        //{
+        // /*   shader->setMat4("Model", objects[i]->model);
+        //    shader->setVec3("color", objects[i]->color);*/
+        //    objects[i]->Draw();
+        //}
     // Swap the buffer
     
 }
@@ -545,6 +494,7 @@ int main(int argc, char const *argv[])
 	delete shaderStereo;
     delete parSystem;
     delete mesh;
+    delete dirLight;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

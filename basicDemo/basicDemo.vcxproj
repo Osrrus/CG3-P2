@@ -142,6 +142,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Api\components\camera.cpp" />
+    <ClCompile Include="Api\light\light.cpp" />
+    <ClCompile Include="Api\light\pointLight.cpp" />
     <ClCompile Include="Api\model\Mesh.cpp" />
     <ClCompile Include="Api\model\Obj.cpp" />
     <ClCompile Include="Api\particle\particle.cpp" />
@@ -161,6 +163,8 @@
   <ItemGroup>
     <ClInclude Include="Api\components\camera.h" />
     <ClInclude Include="Api\components\loadTexture.h" />
+    <ClInclude Include="Api\light\light.h" />
+    <ClInclude Include="Api\light\pointLight.h" />
     <ClInclude Include="Api\model\Mesh.h" />
     <ClInclude Include="Api\model\Obj.h" />
     <ClInclude Include="Api\particle\particle.h" />
@@ -180,6 +184,8 @@
   <ItemGroup>
     <None Include="Api\particle\shader\particle.frag" />
     <None Include="Api\particle\shader\particle.vert" />
+    <None Include="assets\shaders\allLight.frag" />
+    <None Include="assets\shaders\allLight.vert" />
     <None Include="assets\shaders\basic.frag" />
     <None Include="assets\shaders\basic.vert" />
     <None Include="assets\shaders\stereo.frag" />

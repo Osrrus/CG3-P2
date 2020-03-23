@@ -2,7 +2,7 @@
 // Atributte 0 of the vertex
 layout (location = 0) in vec3 vertexPosition;
 // Atributte 1 of the vertex
-layout (location = 1) in vec3 vertexColor;
+layout (location = 1) in vec3 vertexNormal;
 // Attribute 2 of the vertex
 layout (location = 2) in vec2 vertexTexPos;
 
@@ -14,12 +14,17 @@ uniform mat4 projection;
 
 // Vertex data out data
 out vec3 vColor;
+// Vertex normal
+out vec3 vNor;
 // Vertex texture position
-//out vec2 vTexPos;
+out vec2 vTexPos;
+out vec3 fragPos;
 
 void main()
 {
-//	vTexPos = vertexTexPos;
+	vTexPos = vertexTexPos;
     vColor = vertexPosition;   
-    gl_Position = projection * view * vec4((vertexPosition), 1.0f);
+    vNor = vertexNormal;   
+    fragPos = vec3(/*model */ vec4(vertexPosition, 1.0f));
+    gl_Position = projection * view * /*model */ vec4((vertexPosition), 1.0f);
 }
