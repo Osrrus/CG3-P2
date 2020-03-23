@@ -150,6 +150,7 @@
     <ClCompile Include="Api\particle\particle.cpp" />
     <ClCompile Include="Api\particle\particleSystem.cpp" />
     <ClCompile Include="Api\RYGraphics.cpp" />
+    <ClCompile Include="Api\ssao\SSAO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="lib\ImGui\imgui.cpp" />
     <ClCompile Include="lib\ImGui\imgui_demo.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Api\particle\particleSystem.h" />
     <ClInclude Include="Api\RYDefine.h" />
     <ClInclude Include="Api\RYGraphics.h" />
+    <ClInclude Include="Api\ssao\SSAO.h" />
     <ClInclude Include="lib\ImGui\imconfig.h" />
     <ClInclude Include="lib\ImGui\imgui.h" />
     <ClInclude Include="lib\ImGui\imgui_impl_glfw.h" />

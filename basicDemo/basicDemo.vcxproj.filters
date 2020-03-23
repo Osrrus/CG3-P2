@@ -40,6 +40,9 @@
     <Filter Include="Api\gbuffer">
       <UniqueIdentifier>{37243bb5-781a-4ec5-94cb-1bae554a6cdc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Api\ssao">
+      <UniqueIdentifier>{9ba1afe4-8634-419a-bfc9-587220e979df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -98,6 +101,9 @@
     </ClCompile>
     <ClCompile Include="Api\gbuffer\gbuffer.cpp">
       <Filter>Api\gbuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\ssao\SSAO.cpp">
+      <Filter>Api\ssao</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="Api\gbuffer\gbuffer.h">
       <Filter>Api\gbuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\ssao\SSAO.h">
+      <Filter>Api\ssao</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

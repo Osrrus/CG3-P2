@@ -506,10 +506,9 @@ void geometryPass() {
 }
 
 void lightPass() {
-    //glViewport(0, 0, windowWidth, windowHeight);
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shaderLight->use();
     shaderLight->setInt("gPosition", 0);
     shaderLight->setInt("gDiffuse", 1);
@@ -519,21 +518,34 @@ void lightPass() {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, m_gbuffer.m_textures[i]);
     }
+    //Directional light
+    shaderLight->setVec3("dirLight.pos", dirLight->pos);
+    shaderLight->setVec3("dirLight.dir", dirLight->dir);
+    shaderLight->setVec3("dirLight.ambient", dirLight->color.ambient);
+    shaderLight->setVec3("dirLight.diffuse", dirLight->color.diffuse);
+    shaderLight->setVec3("dirLight.specular", dirLight->color.specular);
+    shaderLight->setBool("dirLight.on", dirLight->ON);
+    //Point light
+    for (int ii = 0; ii < N_POINTLIGHTS; ii++)
+    {
+        std::string it = std::to_string(ii);
+        shaderLight->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
+        shaderLight->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
+        shaderLight->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
+        shaderLight->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
+        shaderLight->setVec3("pointLights[" + it + "].attenuationK", pLight[ii]->getKAttenuation());
+        shaderLight->setBool("pointLights[" + it + "].on", pLight[ii]->ON);
+    }
     shaderLight->setVec3("viewPos", Api->camera->position);
 
     renderQuad();
     
     m_gbuffer.BindForReading();
     
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
-
-    // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
-    // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the 		
-    // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); 
     glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-
 }
 
 /**
