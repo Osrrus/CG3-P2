@@ -35,8 +35,7 @@ void Mesh::MeshEntry::init(vector<Vertex> vertices, vector<unsigned int> indices
 {
     m_Size = indices.size();
     /*cout << m_Size << endl;*/
-    printInfo(vertices);
-
+   
     glGenVertexArrays(1, &this->m_VAO);
     glGenBuffers(1, &this->m_VBO);
     glGenBuffers(1, &this->m_IBO);
@@ -115,7 +114,6 @@ void Mesh::draw()
         }*/
         glBindVertexArray(m_Entries[i].m_VAO);
         glDrawElements(GL_TRIANGLES, m_Entries[i].m_Size, GL_UNSIGNED_INT, 0);
-            //cout << m_Entries[i].m_IBO << "  " << m_Entries[i].m_VBO << endl;
         glBindVertexArray(0);
 
         /*glDisableVertexAttribArray(0);
@@ -165,7 +163,7 @@ void Mesh::InitMesh(unsigned int Index, const aiMesh* paiMesh)
         Indices.push_back(Face.mIndices[0]);
         Indices.push_back(Face.mIndices[1]);
         Indices.push_back(Face.mIndices[2]);
-        cout << Face.mIndices[0] << " " << Face.mIndices[1] << " " << Face.mIndices[2] << " " << endl;
+        //cout << Face.mIndices[0] << " " << Face.mIndices[1] << " " << Face.mIndices[2] << " " << endl;
     }
 
     m_Entries[Index].init(Vertices, Indices);
@@ -181,3 +179,11 @@ void Mesh::Clear()
 {
 }
 
+Texture::Texture()
+{
+}
+
+Texture::~Texture()
+{
+    glDeleteTextures(1, &id);
+}

@@ -7,6 +7,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "../components/loadTexture.h"
 
 using namespace std;
 struct Vertex {
@@ -27,6 +28,18 @@ struct Vertex {
 struct Texture {
     unsigned int id;
     string type;
+    Texture();
+    ~Texture();
+    void load(const char* path) 
+    {
+        id = loadT(path);
+    }
+    int bind(int n)
+    {
+        glActiveTexture(GL_TEXTURE0 + n);
+        glBindTexture(GL_TEXTURE_2D, id);
+        return n;
+    }
 };
 
 class Mesh
@@ -39,6 +52,7 @@ public:
     bool LoadMesh(const std::string& Filename);
 
     void draw();
+    Texture text;
 
 private:
     bool InitFromScene(const aiScene* scene, const std::string& Filename);
@@ -53,6 +67,7 @@ private:
         GLuint m_IBO;
         int m_Size;
         unsigned int materialIndex;
+        unsigned int *texture;
         MeshEntry();
         ~MeshEntry();
         void init(vector<Vertex> vertices, vector<unsigned int> indices);

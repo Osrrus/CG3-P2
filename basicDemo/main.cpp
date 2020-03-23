@@ -1,10 +1,12 @@
 #define GLM_ENABLE_EXPERIMENTAL
-
+#define N_POINTLIGHTS 1
 #include <glad/glad.h> // Glad has to be include before glfw
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <map>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -20,6 +22,10 @@
 #include "Api/RYGraphics.h"
 #include "Api/particle/particleSystem.h"
 #include "Api/model/Mesh.h"
+#include "Api/model/Obj.h"
+#include "Api/light/light.h"
+#include "Api/light/pointLight.h"
+#include "Api/gbuffer/gbuffer.h"
 
 //assimp
 Assimp::Importer importer;
@@ -33,11 +39,11 @@ const char *windowTitle = "CG3-P2";
 GLFWwindow *window;
 
 // Shader object
-Shader *shader, *shaderStereo;
+Shader *shader, *shaderStereo, *shaderGBuff, *shaderLight;
 // Index (GPU) of the geometry buffer
-unsigned int VBO;
+unsigned int VBO, quadVBO = 0;
 // Index (GPU) vertex array object
-unsigned int VAO;
+unsigned int VAO, quadVAO = 0;
 // Index (GPU) of the texture
 unsigned int textureID;
 
@@ -46,8 +52,14 @@ bool pressLeft;
 RYGraphics* Api;
 particleSystem* parSystem;
 
+
+std::vector<Obj*> objects;
+light* dirLight;
+pointLight* pLight[N_POINTLIGHTS];
 //Load models
 Mesh* mesh;
+
+GBuffer m_gbuffer;
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -159,11 +171,33 @@ void renderImGui() {
 		Api->stereoscopy = !Api->stereoscopy;
 		//std::cout << Api->stereoscopy << std::endl;
 	}
-	/*if (ImGui::Button("Left"))
-	{
-		Api->left = !Api->left;
-	}
-*/
+    //ImGui::InputText("float", buf, IM_ARRAYSIZE(buf));
+
+    if (ImGui::TreeNode("Directional Light"))
+    {
+        if (ImGui::SmallButton("ON/OFF")) {
+            dirLight->changeONOFF();
+        }
+        ImGui::Text("Direction of light");
+        ImGui::SliderFloat("float x", &dirLight->dir.x, -10.0f, 10.0f);
+        ImGui::SliderFloat("float y", &dirLight->dir.y, -10.0f, 10.0f);
+        ImGui::SliderFloat("float z", &dirLight->dir.z, -10.0f, 10.0f);
+
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Point Light"))
+    {
+        if (ImGui::SmallButton("ON/OFF")) {
+            pLight[0]->changeONOFF();
+        }
+
+        ImGui::Text("Position of light");
+        ImGui::InputFloat("input float x", &pLight[0]->pos.x, 0.01f, 1.0f, "%.3f");
+        ImGui::InputFloat("input float y", &pLight[0]->pos.y, 0.01f, 1.0f, "%.3f");
+        ImGui::InputFloat("input float z", &pLight[0]->pos.z, 0.01f, 1.0f, "%.3f");
+        ImGui::TreePop();
+    }
     ImGui::End();
 
     // Render dear imgui into screen
@@ -178,10 +212,43 @@ void initGL()
 {
     // Enables the z-buffer test
     glEnable(GL_DEPTH_TEST);
+
+    /*glEnable(GL_FRAMEBUFFER_SRGB);*/
+
+    ////Blending
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Sets the ViewPort
     glViewport(0, 0, windowWidth, windowHeight);
     // Sets the clear color
     glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+}
+
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }
 
 /**
@@ -242,25 +309,35 @@ bool init()
     // Loads the shader
 	shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
 	shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
+    shaderGBuff = new Shader("assets/shaders/gbuffer.vert", "assets/shaders/gbuffer.frag");
+    shaderLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/lightPass.frag");
     // Loads all the geometry into the GPU
     buildGeometry();
     parSystem = new particleSystem();
     // Loads the texture into the GPU
     //textureID = loadTexture("assets/textures/bricks2.jpg");
-    string path = "assets/models/crate.obj";
-    //path = "assets/models/crysis.fbx";
+    string path = "assets/models/cat/catS.obj";
+    path = "assets/models/cottage_obj/cottage_obj.obj";
     //Loads 3D model
     mesh = new Mesh();
     if (!mesh->LoadMesh(path))
     {
-        cout << "no cargó modelo" << endl;
+        cout << "no cargï¿½ modelo" << endl;
         return false;
     }
     else {
-        cout << "cargó modelo" << endl;
+        cout << "cargï¿½ modelo" << endl;
+        mesh->text.load("assets/textures/bricks2.jpg");
+    }
+    dirLight = new light(glm::vec3(-3.0f));
+    for (int i = 0; i < N_POINTLIGHTS; i++)
+    {
+        pLight[i] = new pointLight(glm::vec3(15.0f,20.0f,5.0f));
 
     }
-   
+
+    m_gbuffer.Init(windowWidth, windowHeight);
+    //objects.push_back(loadObj("assets/models/cat.obj"));
     return true;
 }
 /**
@@ -304,8 +381,12 @@ void processKeyboardInput(GLFWwindow *window)
         // Reloads the shader
 		delete shader;
 		delete shaderStereo;
+        delete shaderGBuff;
+        delete shaderLight;
         shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
 		shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
+        shaderGBuff = new Shader("assets/shaders/gbuffer.vert", "assets/shaders/gbuffer.frag");
+        shaderLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/lightPass.frag");
 
     }
 }
@@ -322,10 +403,11 @@ void renderStereo() {
 	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
 	shaderStereo->setBool("left", Api->left);
 	// Binds the vertex array to be drawn
-	glBindVertexArray(VAO);
-	// Renders the triangle gemotry
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
+	//glBindVertexArray(VAO);
+	//// Renders the triangle gemotry
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	//glBindVertexArray(0);
+    mesh->draw();
 
 	shaderStereo->use();
 	glColorMask(GL_TRUE,
@@ -338,12 +420,13 @@ void renderStereo() {
 	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
 	shaderStereo->setBool("left", !Api->left);
 	
-	// Binds the vertex array to be drawn
-	glBindVertexArray(VAO);
-	// Renders the triangle gemotry
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
-	glColorMask(GL_TRUE,
+	//// Binds the vertex array to be drawn
+	//glBindVertexArray(VAO);
+	//// Renders the triangle gemotry
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	//glBindVertexArray(0);
+    mesh->draw();
+    glColorMask(GL_TRUE,
 		GL_TRUE,
 		GL_TRUE,
 		GL_TRUE);
@@ -356,39 +439,103 @@ void render()
 {
     // Clears the color and depth buffers from the frame buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     /** Draws code goes here **/
     // Use the shader
 	if (!Api->stereoscopy)
 	{
 		shader->use();
-		//Api->camera->stereoViewProjectionMatrices( 0.5, 10.0, Api->left);
 		shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
 		shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
-		/*shader->setMat4("view", Api->camera->viewMatrix);
-		shader->setMat4("projection", Api->camera->projectionMatrix);*/
+        shader->setVec3("viewPos", Api->camera->position);
+        shader->setInt("text", mesh->text.bind(0));
+        //Directional light
+        shader->setVec3("dirLight.pos", dirLight->pos);
+        shader->setVec3("dirLight.dir", dirLight->dir);
+        shader->setVec3("dirLight.ambient", dirLight->color.ambient);
+        shader->setVec3("dirLight.diffuse", dirLight->color.diffuse);
+        shader->setVec3("dirLight.specular", dirLight->color.specular);
+        shader->setBool("dirLight.on", dirLight->ON);
+        //Point light
+        for (int ii = 0; ii < N_POINTLIGHTS; ii++)
+        {
+            std::string it = std::to_string(ii);
+            shader->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
+            shader->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
+            shader->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
+            shader->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
+            shader->setVec3("pointLights[" + it + "].attenuationK", pLight[ii]->getKAttenuation());
+            shader->setBool("pointLights[" + it + "].on", pLight[ii]->ON);
+        }
+
+	   
 		// Binds the vertex array to be drawn
         mesh->draw();
 		//glBindVertexArray(VAO);
 		// Renders the triangle gemotry
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		//glBindVertexArray(0);
-
-        
-
 	}
 	else
 	{
-        shader->use();
-       
-        shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
-        shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
-        mesh->draw();
-		//renderStereo();
+		renderStereo();
 	}
+
     // Swap the buffer
     
 }
+
+void geometryPass() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_gbuffer.getFBO());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    shaderGBuff->use();
+
+    shaderGBuff->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+    shaderGBuff->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+    shaderGBuff->setVec3("viewPos", Api->camera->position);
+    shaderGBuff->setInt("text", mesh->text.bind(0));
+    mesh->draw();
+    //glBindVertexArray(VAO);
+    //// Renders the triangle gemotry
+    //glDrawArrays(GL_TRIANGLES, 0, 3);
+    //glBindVertexArray(0);
+    //glViewport(0, 0, windowWidth, windowHeight);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
+void lightPass() {
+    //glViewport(0, 0, windowWidth, windowHeight);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    shaderLight->use();
+    shaderLight->setInt("gPosition", 0);
+    shaderLight->setInt("gDiffuse", 1);
+    shaderLight->setInt("gNormal", 2);
+    shaderLight->setInt("gTextCoord", 3);
+    for (unsigned int i = 0; i < GBuffer::GBUFFER_NUM_TEXTURES; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.m_textures[i]);
+    }
+    shaderLight->setVec3("viewPos", Api->camera->position);
+
+    renderQuad();
+    
+    m_gbuffer.BindForReading();
+    
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+
+    // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
+    // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the 		
+    // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
+    glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+
+}
+
 /**
  * App main loop
  * */
@@ -404,10 +551,12 @@ void update()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Renders everything
-        render();
-        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
         
+        geometryPass();
+
+        lightPass();
+        //render();
+        //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
         renderImGui();
         // Check and call events
         glfwSwapBuffers(window);
@@ -446,8 +595,17 @@ int main(int argc, char const *argv[])
     // Destroy the shader
 	delete shader;
 	delete shaderStereo;
+    delete shaderGBuff;
+    delete shaderLight;
     delete parSystem;
     delete mesh;
+    delete dirLight;
+    //delete pLight;
+    for (int i = 0; i < N_POINTLIGHTS; i++)
+    {
+        delete pLight[i];
+
+    }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

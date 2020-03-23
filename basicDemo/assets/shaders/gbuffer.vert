@@ -6,7 +6,7 @@ layout (location = 1) in vec3 vertexNormal;
 // Attribute 2 of the vertex
 layout (location = 2) in vec2 vertexTexPos;
 
-layout (location = 3) in vec2 idRGB;
+//layout (location = 3) in vec2 idRGB;
 // Uniforms
 //uniform mat4 model;
 uniform mat4 view;

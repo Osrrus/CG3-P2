@@ -34,6 +34,12 @@
     <Filter Include="Api\model">
       <UniqueIdentifier>{70673c15-e613-4d3e-836d-fdfa53a8531d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Api\light">
+      <UniqueIdentifier>{b1ab9dba-09d8-4896-b72b-545a3ccb11c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Api\gbuffer">
+      <UniqueIdentifier>{37243bb5-781a-4ec5-94cb-1bae554a6cdc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -80,6 +86,18 @@
     </ClCompile>
     <ClCompile Include="Api\model\Mesh.cpp">
       <Filter>Api\model</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\model\Obj.cpp">
+      <Filter>Api\model</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\light\pointLight.cpp">
+      <Filter>Api\light</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\light\light.cpp">
+      <Filter>Api\light</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\gbuffer\gbuffer.cpp">
+      <Filter>Api\gbuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +149,18 @@
     <ClInclude Include="Api\model\Mesh.h">
       <Filter>Api\model</Filter>
     </ClInclude>
+    <ClInclude Include="Api\model\Obj.h">
+      <Filter>Api\model</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\light\pointLight.h">
+      <Filter>Api\light</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\light\light.h">
+      <Filter>Api\light</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\gbuffer\gbuffer.h">
+      <Filter>Api\gbuffer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\basic.frag">
@@ -150,6 +180,24 @@
     </None>
     <None Include="Api\particle\shader\particle.vert">
       <Filter>Api\particle\shader</Filter>
+    </None>
+    <None Include="assets\shaders\allLight.vert">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\allLight.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\gbuffer.vert">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\gbuffer.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\lightPass.vert">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\lightPass.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

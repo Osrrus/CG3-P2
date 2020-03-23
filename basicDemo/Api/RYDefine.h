@@ -12,12 +12,14 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+#include <stb_image.h>
 
 #include "components/camera.h"
 
 #include "../Shader.h"
 
 #include <iostream>
+
+#include <vector>
 
 //unsigned int loadT(const char* path);

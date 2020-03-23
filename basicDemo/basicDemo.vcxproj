@@ -142,7 +142,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Api\components\camera.cpp" />
+    <ClCompile Include="Api\gbuffer\gbuffer.cpp" />
+    <ClCompile Include="Api\light\light.cpp" />
+    <ClCompile Include="Api\light\pointLight.cpp" />
     <ClCompile Include="Api\model\Mesh.cpp" />
+    <ClCompile Include="Api\model\Obj.cpp" />
     <ClCompile Include="Api\particle\particle.cpp" />
     <ClCompile Include="Api\particle\particleSystem.cpp" />
     <ClCompile Include="Api\RYGraphics.cpp" />
@@ -160,7 +164,11 @@
   <ItemGroup>
     <ClInclude Include="Api\components\camera.h" />
     <ClInclude Include="Api\components\loadTexture.h" />
+    <ClInclude Include="Api\gbuffer\gbuffer.h" />
+    <ClInclude Include="Api\light\light.h" />
+    <ClInclude Include="Api\light\pointLight.h" />
     <ClInclude Include="Api\model\Mesh.h" />
+    <ClInclude Include="Api\model\Obj.h" />
     <ClInclude Include="Api\particle\particle.h" />
     <ClInclude Include="Api\particle\particleSystem.h" />
     <ClInclude Include="Api\RYDefine.h" />
@@ -178,8 +186,14 @@
   <ItemGroup>
     <None Include="Api\particle\shader\particle.frag" />
     <None Include="Api\particle\shader\particle.vert" />
+    <None Include="assets\shaders\allLight.frag" />
+    <None Include="assets\shaders\allLight.vert" />
     <None Include="assets\shaders\basic.frag" />
     <None Include="assets\shaders\basic.vert" />
+    <None Include="assets\shaders\gbuffer.frag" />
+    <None Include="assets\shaders\gbuffer.vert" />
+    <None Include="assets\shaders\lightPass.frag" />
+    <None Include="assets\shaders\lightPass.vert" />
     <None Include="assets\shaders\stereo.frag" />
     <None Include="assets\shaders\stereo.vert" />
   </ItemGroup>
