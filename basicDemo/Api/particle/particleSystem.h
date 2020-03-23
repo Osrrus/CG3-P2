@@ -16,12 +16,12 @@ class particleSystem
         glm::vec4 color;
         Shader* shader;
         unsigned int VBO[2], VAO, texture;
-
+        float newParticle;
     public:
         bool active;
         particleSystem();
         ~particleSystem();
-        void draw(float,glm::mat4,glm::mat4);
+        void draw(float,glm::mat4,glm::mat4, glm::vec3);
         void createNewParticles(float delta);
         particle* getFirtsDeathParticle();
         

@@ -563,12 +563,12 @@ void update()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Renders everything
+        
         geometryPass();
 
         lightPass();
         //render();
-        //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+        //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
         renderImGui();
         // Check and call events
         glfwSwapBuffers(window);

@@ -13,8 +13,10 @@ class particle
         float lifeTime;
         particle();
         ~particle();
-        void draw(Shader*,unsigned int);
+        void draw(Shader*,unsigned int, glm::vec3);
         void lookAt();
+        glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
+        glm::quat sLookAt(glm::vec3 direction, glm::vec3 desiredUp);
         unsigned int texture;
 };
 

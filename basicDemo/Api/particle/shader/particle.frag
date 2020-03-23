@@ -10,4 +10,7 @@ uniform sampler2D texture1;
 void main()
 {
     color = texture(texture1,uvs);
+
+    if(color.a < 0.4f)
+        discard;
 }  

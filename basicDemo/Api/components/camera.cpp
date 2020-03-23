@@ -4,7 +4,7 @@
 #include <glm/gtx/transform.hpp>
 #include <iostream>
 
-const float MOVEMENT_SPEED = 0.1f;
+const float MOVEMENT_SPEED = 0.05f;
 const float ROTATIONAL_SPEED = 0.006f;
 const float SENSITIVITY = 0.1f;
 /*
