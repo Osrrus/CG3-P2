@@ -54,9 +54,9 @@ vec3 intensiyLightDir(vec3 Normal, vec3 ViewDir, vec3 diffuseColorK)
     return ambient + diffuse + specular;
 }
 
-vec3 intensitypointLight(PointLight pointLight, vec3 normal, vec3 viewdir, vec3 diffuseColorK)
+vec3 intensityPointLight(PointLight pointLight, vec3 normal, vec3 viewdir, vec3 diffuseColorK)
 {
-    float n = 10.0f;
+    float n = 15.0f;
 
     vec3 LightDir = normalize(pointLight.pos - fragPos);
     vec3 R = reflect(-LightDir, normal);
@@ -87,11 +87,15 @@ void main()
     vec3 normal = normalize(vNor);
     vec3 ViewDir = normalize(viewPos - fragPos.xyz);
 
-    vec3 result = intensiyLightDir(normal, ViewDir, texture2D(text, vTexPos).rgb);
+    vec3 result = vec3(0.0f); 
+    result += intensiyLightDir(normal, ViewDir, texture2D(text, vTexPos).rgb);
 //    vec3 result = intensiyLightDir(normal, ViewDir, vec3(1.0f,0.0f,1.0f));
     if(texture2D(text, vTexPos).a < 0.1)
         discard;
-
+    for(int i = 0; i < 1; i++)
+    {
+        result += intensityPointLight(pointLights[i], normal, ViewDir, texture2D(text, vTexPos).rgb);
+    }
     color = vec4(viewPos, 1.0f);
     color = vec4(result, 1.0f);
 }

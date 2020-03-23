@@ -1,5 +1,5 @@
 #define GLM_ENABLE_EXPERIMENTAL
-
+#define N_POINTLIGHTS 1
 #include <glad/glad.h> // Glad has to be include before glfw
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -54,7 +54,7 @@ particleSystem* parSystem;
 
 std::vector<Obj*> objects;
 light* dirLight;
-pointLight* pLight;
+pointLight* pLight[N_POINTLIGHTS];
 //Load models
 Mesh* mesh;
 
@@ -172,7 +172,9 @@ void renderImGui() {
 
     if (ImGui::TreeNode("Directional Light"))
     {
-        
+        if (ImGui::SmallButton("ON/OFF")) {
+            dirLight->changeONOFF();
+        }
         ImGui::Text("Direction of light");
         ImGui::SliderFloat("float x", &dirLight->dir.x, -10.0f, 10.0f);
         ImGui::SliderFloat("float y", &dirLight->dir.y, -10.0f, 10.0f);
@@ -183,12 +185,14 @@ void renderImGui() {
 
     if (ImGui::TreeNode("Point Light"))
     {
+        if (ImGui::SmallButton("ON/OFF")) {
+            pLight[0]->changeONOFF();
+        }
 
         ImGui::Text("Position of light");
-        ImGui::SliderFloat("float x", &pLight->dir.x, -10.0f, 10.0f);
-        ImGui::SliderFloat("float y", &pLight->dir.y, -10.0f, 10.0f);
-        ImGui::SliderFloat("float z", &pLight->dir.z, -10.0f, 10.0f);
-
+        ImGui::InputFloat("input float x", &pLight[0]->pos.x, 0.01f, 1.0f, "%.3f");
+        ImGui::InputFloat("input float y", &pLight[0]->pos.y, 0.01f, 1.0f, "%.3f");
+        ImGui::InputFloat("input float z", &pLight[0]->pos.z, 0.01f, 1.0f, "%.3f");
         ImGui::TreePop();
     }
     ImGui::End();
@@ -288,7 +292,11 @@ bool init()
         mesh->text.load("assets/textures/bricks2.jpg");
     }
     dirLight = new light(glm::vec3(-3.0f));
-    pLight = new pointLight(glm::vec3(-3.0f));
+    for (int i = 0; i < N_POINTLIGHTS; i++)
+    {
+        pLight[i] = new pointLight(glm::vec3(15.0f,20.0f,5.0f));
+
+    }
     //objects.push_back(loadObj("assets/models/cat.obj"));
     return true;
 }
@@ -405,6 +413,19 @@ void render()
         shader->setVec3("dirLight.diffuse", dirLight->color.diffuse);
         shader->setVec3("dirLight.specular", dirLight->color.specular);
         shader->setBool("dirLight.on", dirLight->ON);
+        //Point light
+        for (int ii = 0; ii < N_POINTLIGHTS; ii++)
+        {
+            std::string it = std::to_string(ii);
+            //shader->setVec3("pointLights[" + it + "].position", glm::vec3(2.0f, 0.0f, -2.0f));
+            //shader->setVec3("pointLight[" + it + "]", pLight[ii]->pos);
+            shader->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
+            shader->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
+            shader->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
+            shader->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
+            shader->setVec3("pointLights[" + it + "].attenuationK", pLight[ii]->getKAttenuation());
+            shader->setBool("pointLights[" + it + "].on", pLight[ii]->ON);
+        }
 
 	    /*shader->setMat4("view", Api->camera->viewMatrix);
 		shader->setMat4("projection", Api->camera->projectionMatrix);*/
@@ -495,6 +516,12 @@ int main(int argc, char const *argv[])
     delete parSystem;
     delete mesh;
     delete dirLight;
+    //delete pLight;
+    for (int i = 0; i < N_POINTLIGHTS; i++)
+    {
+        delete pLight[i];
+
+    }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
