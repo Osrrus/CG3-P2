@@ -406,7 +406,7 @@ void update()
 
         // Renders everything
         render();
-        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
         
         renderImGui();
         // Check and call events
