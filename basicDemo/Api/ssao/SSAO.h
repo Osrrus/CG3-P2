@@ -25,7 +25,7 @@ public:
     void genSSAOText(Shader* shader, Shader* shaderBlur, glm::mat4 proj, GLuint gPosition, GLuint gNormal);
 
     void lightPass(Shader* shaderLight, light* dirLight, std::vector<pointLight*> pLight, int N_L, GLuint* m_textures, glm::mat4 view);
-
+    float radius, bias;
 private:
     GLuint FBO, blurFBO;
     std::vector<glm::vec3> ssaoKernel;

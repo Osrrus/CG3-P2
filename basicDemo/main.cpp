@@ -40,7 +40,7 @@ const char *windowTitle = "CG3-P2";
 GLFWwindow *window;
 
 // Shader object
-Shader *shader, *shaderStereo, *shaderGBuff, *shaderLight;
+Shader *shader, *shaderStereo, *shaderGBuff, *shaderLight, *shaderSSAO, *shaderSSAOBlur, *shaderSSAOLight;
 // Index (GPU) of the geometry buffer
 unsigned int VBO;
 // Index (GPU) vertex array object
@@ -314,6 +314,9 @@ bool init()
 	shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
     shaderGBuff = new Shader("assets/shaders/gbuffer.vert", "assets/shaders/gbuffer.frag");
     shaderLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/lightPass.frag");
+    shaderSSAO = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssao.frag");
+    shaderSSAOBlur = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoBlur.frag");
+    shaderSSAOLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoLight.frag");
     // Loads all the geometry into the GPU
     buildGeometry();
     parSystem = new particleSystem();
@@ -385,11 +388,16 @@ void processKeyboardInput(GLFWwindow *window)
 		delete shaderStereo;
         delete shaderGBuff;
         delete shaderLight;
+        delete shaderSSAO;
+        delete shaderSSAOBlur;
+        delete shaderSSAOLight;
         shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
 		shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
         shaderGBuff = new Shader("assets/shaders/gbuffer.vert", "assets/shaders/gbuffer.frag");
         shaderLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/lightPass.frag");
-
+        shaderSSAO = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssao.frag");
+        shaderSSAOBlur = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoBlur.frag");
+        shaderSSAOLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoLight.frag");
     }
 }
 
@@ -617,6 +625,9 @@ int main(int argc, char const *argv[])
 	delete shaderStereo;
     delete shaderGBuff;
     delete shaderLight;
+    delete shaderSSAO;
+    delete shaderSSAOBlur;
+    delete shaderSSAOLight;
     delete parSystem;
     delete mesh;
     delete dirLight;

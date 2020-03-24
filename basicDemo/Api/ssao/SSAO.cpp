@@ -3,6 +3,8 @@
 SSAO::SSAO()
 {
     VAO = VBO = 0;
+    radius = 0.5f;
+    bias = 0.025f;
 }
 
 SSAO::~SSAO()
