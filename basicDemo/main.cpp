@@ -164,15 +164,14 @@ void renderImGui() {
 
     ImGui::Begin("API Controls");
     ImGui::Text("FPS: %d", Api->getFPS());
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	
+    ImGui::Separator();
 	if (ImGui::Button("Stereoscopy"))
 	{
 		Api->stereoscopy = !Api->stereoscopy;
 		//std::cout << Api->stereoscopy << std::endl;
 	}
     //ImGui::InputText("float", buf, IM_ARRAYSIZE(buf));
-
+    ImGui::Separator();
     if (ImGui::TreeNode("Directional Light"))
     {
         if (ImGui::SmallButton("ON/OFF")) {
@@ -185,7 +184,7 @@ void renderImGui() {
 
         ImGui::TreePop();
     }
-
+    ImGui::Separator();
     if (ImGui::TreeNode("Point Light"))
     {
         if (ImGui::SmallButton("ON/OFF")) {
@@ -198,6 +197,45 @@ void renderImGui() {
         ImGui::InputFloat("input float z", &pLight[0]->pos.z, 0.01f, 1.0f, "%.3f");
         ImGui::TreePop();
     }
+    ImGui::Separator();
+    if (ImGui::TreeNode("Particle System"))
+    {
+        if (ImGui::SmallButton("ON/OFF")) {
+            parSystem->active = !parSystem->active;
+        }
+
+        if (ImGui::TreeNode("Particle System Position")) {
+
+            ImGui::InputFloat("input float x", &parSystem->position.x, 0.1f, 1.0f, "%.3f");
+            ImGui::InputFloat("input float y", &parSystem->position.y, 0.1f, 1.0f, "%.3f");
+            ImGui::InputFloat("input float z", &parSystem->position.z, 0.1f, 1.0f, "%.3f");
+            ImGui::TreePop();
+        }
+        
+        if (ImGui::TreeNode("Particle System Direction")) {
+
+            ImGui::InputFloat("input float x", &parSystem->direction.x, 0.1f, 1.0f, "%.3f");
+            ImGui::InputFloat("input float y", &parSystem->direction.y, 0.1f, 1.0f, "%.3f");
+            ImGui::InputFloat("input float z", &parSystem->direction.z, 0.1f, 1.0f, "%.3f");
+            ImGui::TreePop();
+
+        }
+        
+        if (ImGui::TreeNode("Particle System Scale")) {
+
+            ImGui::InputFloat("input float x", &parSystem->scale.x, 0.01f, 1.0f, "%.3f");
+            ImGui::InputFloat("input float y", &parSystem->scale.y, 0.01f, 1.0f, "%.3f");
+            ImGui::InputFloat("input float z", &parSystem->scale.z, 0.01f, 1.0f, "%.3f");
+            ImGui::TreePop();
+        }
+        
+        ImGui::InputFloat("Spawn Time", &parSystem->spawTime, 0.01f, 1.0f, "%.3f");
+        ImGui::InputFloat("Life Time", &parSystem->LifeTime, 0.01f, 1.0f, "%.3f");
+        
+        ImGui::TreePop();
+
+    }
+
     ImGui::End();
 
     // Render dear imgui into screen
@@ -485,6 +523,7 @@ void render()
 }
 
 void geometryPass() {
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gbuffer.getFBO());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -568,7 +607,7 @@ void update()
 
         lightPass();
         //render();
-        //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
+        parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
         renderImGui();
         // Check and call events
         glfwSwapBuffers(window);

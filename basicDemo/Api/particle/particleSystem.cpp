@@ -2,7 +2,7 @@
 
 #define PARTICLENUMBER 2000
 
-particleSystem::particleSystem():position(0.0f),direction(0.0f,0.1f,0.0f),color(0.2f,0.25f,0.5f,1.0f)
+particleSystem::particleSystem():position(0.0f),direction(0.0f,0.1f,0.0f),color(0.2f,0.25f,0.5f,1.0f),scale(1.0f)
 {
 	this->spawParticle = 1;
 	this->numberOfparticles = PARTICLENUMBER;
@@ -11,6 +11,9 @@ particleSystem::particleSystem():position(0.0f),direction(0.0f,0.1f,0.0f),color(
 	this->shader = new Shader("Api/particle/shader/particle.vert","Api/particle/shader/particle.frag");
 	this->texture = loadT("assets/textures/particle.png");
 	this->newParticle = 0.0f;
+	this->spawTime = 500.f;
+	this->LifeTime = 400.f;
+
 	float vertex[] = {
 		 0.2f, 0.2f, 0.0f,
 		 0.0f, 0.0f, 0.0f,
@@ -20,6 +23,7 @@ particleSystem::particleSystem():position(0.0f),direction(0.0f,0.1f,0.0f),color(
 	 	 0.2f, 0.0f, 0.0f,
 		 0.0f, 0.0f, 0.0f
 	};
+
 	float uvs[] = {
 		1.0f, 0.0f,
 		0.0f, 1.0f,
@@ -64,7 +68,7 @@ particleSystem::~particleSystem()
 void particleSystem::draw(float delta, glm::mat4 view, glm::mat4 projection, glm::vec3 cameraPos)
 {	
 
-	if (this->active && newParticle > 5000.0f) {
+	if (this->active && newParticle > this->spawTime) {
 
 		this->createNewParticles(delta);
 		newParticle = 0;
@@ -83,7 +87,7 @@ void particleSystem::draw(float delta, glm::mat4 view, glm::mat4 projection, glm
 
 		if (this->particles[i]->lifeTime > 0.0f) {
 
-			this->particles[i]->position += this->particles[i]->direction *delta * 0.1f;
+			this->particles[i]->position += this->particles[i]->direction *delta;
 			this->particles[i]->color += 0.005 * delta;
 			this->particles[i]->draw(this->shader,this->VAO,cameraPos);
 			this->particles[i]->lifeTime -= delta;
@@ -103,7 +107,8 @@ void particleSystem::createNewParticles(float delta)
 		p->position = this->position;
 		p->direction = this->direction;
 		p->color = this->color;
-		p->lifeTime = 4000.0f;
+		p->scale = this->scale;
+		p->lifeTime = this->LifeTime;
 		p->texture = this->texture;
 	}
 }

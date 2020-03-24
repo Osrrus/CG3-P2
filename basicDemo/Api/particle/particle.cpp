@@ -15,19 +15,15 @@ particle::~particle()
 void particle::draw(Shader *shader,unsigned int particleVAO, glm::vec3 cameraPos)
 {
 	shader->setVec4("color", color);
+
 	glm::mat4 model = glm::mat4(1.0f); 
-	//glm::mat4 rotationMatrix = glm::toMat4(RotationBetweenVectors(this->position,cameraPos - this->position));
-	//glm::vec3 right = glm::cross(cameraPos - this->position, desiredUp);
-	//desiredUp = glm::cross(right, cameraPos - this->position);
-	//model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 0.0f));
-	//model = glm::scale(model, this->scale);
-	
 	glm::mat4 rotationMatrix = glm::toMat4(sLookAt(cameraPos - this->position, glm::vec3(0.0f, 1.0f, 0.0f)));
+
 	model = glm::translate(model, this->position);
+	model = glm::scale(model, this->scale);
 	model *= rotationMatrix;
 
 	shader->setMat4("model", model);
-	shader->setVec2("billBoarSize", glm::vec2(0.2f * scale.x, 0.2 * scale.y));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, this->texture);
