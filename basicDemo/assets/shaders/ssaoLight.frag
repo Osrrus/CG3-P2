@@ -6,7 +6,7 @@ in vec2 vTexPos;
 uniform sampler2D gPosition;
 uniform sampler2D gDiffuse;
 uniform sampler2D gNormal;
-uniform sampler2D gTextCoord;
+uniform sampler2D SSAO;
 
 // Fragment Color
 uniform vec3 viewPos;
@@ -31,6 +31,7 @@ struct PointLight {
     bool on;
 };    
 uniform PointLight pointLights[1];
+float AmbientOcclusion = texture(SSAO, vTexPos).r;
 
 vec3 intensiyLightDir(vec3 Normal, vec3 ViewDir, vec3 diffuseColorK)
 {
@@ -40,7 +41,7 @@ vec3 intensiyLightDir(vec3 Normal, vec3 ViewDir, vec3 diffuseColorK)
     vec3 reflectDir = reflect(-LightDir, Normal);
     vec3 halfwayDir = normalize(LightDir + ViewDir);
     //Material with lightDir components
-    vec3 ambient  = /*ka */ dirLight.ambient;
+    vec3 ambient  = /*ka */AmbientOcclusion * dirLight.ambient;
     if(!dirLight.on)
         return ambient;
     vec3 diffuse  = diffuseColorK * /*dirLight.diffuse */ max(0.0f, dot(Normal, LightDir));
@@ -59,7 +60,7 @@ vec3 intensityPointLight(PointLight pointLight, vec3 normal, vec3 viewdir, vec3 
     vec3 R = reflect(-LightDir, normal);
     vec3 halfwayDir = normalize(LightDir + viewdir);
     
-    vec3 ambient  = /*ka */ pointLight.ambientColor;
+    vec3 ambient  = /*ka */AmbientOcclusion * pointLight.ambientColor;
     if(!pointLight.on)
         return ambient;
 
@@ -84,17 +85,14 @@ void main()
 {
     vec3 FragPos = texture(gPosition, vTexPos).rgb;
     vec3 Normal = texture(gNormal, vTexPos).rgb;
-    vec3 TextCoord = texture(gTextCoord, vTexPos).rgb;
+//    vec3 TextCoord = texture(gTextCoord, vTexPos).rgb;
     vec3 Diffuse = texture(gDiffuse, vTexPos).rgb;
-
 
 //    float Specular = texture(gDiffuse, vTexPos).a;
     vec3 viewDir  = normalize(viewPos - FragPos);
     vec3 result = vec3(0.0f);
     result += intensityPointLight(pointLights[0], Normal, viewDir, Diffuse);
     result += intensiyLightDir(Normal, viewDir, Diffuse);
-    color =  vec4(1.0f);
-    color =  vec4(FragPos,1.0f);
-    color =  vec4(Normal,1.0f);
+
     color =  vec4(result,1.0f);
 }

@@ -11,6 +11,7 @@ class RYGraphics
     public:
 		bool stereoscopy;
 		bool left;
+        float IOD;
 		Camera *camera;
 		/* Esteroscopy */
 		Camera *rightEye;
