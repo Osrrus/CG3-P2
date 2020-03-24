@@ -79,6 +79,7 @@ void resize(GLFWwindow *window, int width, int height)
     windowWidth = width;
     windowHeight = height;
 	Api->camera->updateWH(glm::vec2(width, height));
+    m_ssao.updateNoiseScale(width, height);
     // Sets the OpenGL viewport size and position
     glViewport(0, 0, windowWidth, windowHeight);
 }
@@ -252,6 +253,20 @@ void renderImGui() {
             Api->ssao = !Api->ssao;
             //std::cout << Api->stereoscopy << std::endl;
         }
+        if (ImGui::InputInt("Kernel size", &m_ssao.kernelSize, 1, 1.0f))
+        {
+            m_ssao.initKernel();
+            shaderSSAO->use();
+
+            for (unsigned int i = 0; i < m_ssao.kernelSize; ++i)
+            {
+                shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", m_ssao.ssaoKernel[i]);
+            }
+        }
+        
+        ImGui::InputFloat("Radius", &m_ssao.radius, 0.1f, 1.0f, "%.3f");
+        ImGui::InputFloat("Bias",   &m_ssao.bias, 0.01f, 1.0f, "%.3f");
+
         ImGui::TreePop();
     }
     ImGui::Separator();
@@ -377,7 +392,8 @@ bool init()
     parSystem = new particleSystem();
     // Loads the texture into the GPU
     //textureID = loadTexture("assets/textures/bricks2.jpg");
-    string path = "assets/models/cat/catS.obj";
+    string path;
+    path = "assets/models/crysis.fbx";
     path = "assets/models/cottage_obj/cottage_obj.obj";
     //Loads 3D model
     mesh = new Mesh();
@@ -519,6 +535,7 @@ void geometryPass(Shader* shaderGBuff) {
     shaderGBuff->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
     shaderGBuff->setVec3("viewPos", Api->camera->position);
     shaderGBuff->setInt("text", mesh->text.bind(0));
+    shaderGBuff->setInt("ssao",Api->ssao);
     mesh->draw();
     //glBindVertexArray(VAO);
     //// Renders the triangle gemotry

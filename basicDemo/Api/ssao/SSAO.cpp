@@ -5,6 +5,9 @@ SSAO::SSAO()
     VAO = VBO = 0;
     radius = 0.5f;
     bias = 0.025f;
+    kernelSize = 32;
+    noiseScale = glm::vec2(800.0 / 4.0, 600.0 / 4.0);
+
 }
 
 SSAO::~SSAO()
@@ -76,14 +79,15 @@ bool SSAO::Init(unsigned int WindowWidth, unsigned int WindowHeight)
 
 void SSAO::initKernel()
 {
+    ssaoKernel.clear();
     std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
     std::default_random_engine generator;
-    for (unsigned int i = 0; i < 64; ++i)
+    for (unsigned int i = 0; i < kernelSize; ++i)
     {
         glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
         sample = glm::normalize(sample);
         sample *= randomFloats(generator);
-        float scale = float(i) / 64.0;
+        float scale = float(i) / kernelSize;
 
         scale = lerp(0.1f, 1.0f, scale * scale);
         sample *= scale;
@@ -120,10 +124,14 @@ void SSAO::genSSAOText(Shader *shader, Shader* shaderBlur, glm::mat4 proj, GLuin
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     glClear(GL_COLOR_BUFFER_BIT);
     shader->use();
-    /*for (unsigned int i = 0; i < 64; ++i)
+    for (unsigned int i = 0; i < kernelSize; ++i)
     {
         shader->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
-    }*/
+    }
+    shader->setInt("kernelSize", kernelSize);
+    shader->setFloat("bias", bias);
+    shader->setFloat("radius", radius);
+    shader->setVec2("noiseScale", noiseScale);
     shader->setMat4("projection", proj);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gPosition);
@@ -158,7 +166,11 @@ void SSAO::lightPass(Shader* shaderLight, light* dirLight, std::vector<pointLigh
     }
     glActiveTexture(GL_TEXTURE0 + 3);
     glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
-    
+    /*glActiveTexture(GL_TEXTURE0 + 4);
+    glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+    glActiveTexture(GL_TEXTURE0 + 5);
+    glBindTexture(GL_TEXTURE_2D, noiseTexture);*/
+
     //Directional light
     shaderLight->setVec3("dirLight.pos", dirLight->pos);
     shaderLight->setVec3("dirLight.dir", dirLight->dir);
@@ -181,4 +193,9 @@ void SSAO::lightPass(Shader* shaderLight, light* dirLight, std::vector<pointLigh
     }
     
     renderQuad(VAO, VBO);
+}
+
+void SSAO::updateNoiseScale(float winW, float winH)
+{
+    noiseScale = glm::vec2(winW/4.0f, winH/4.0f);
 }

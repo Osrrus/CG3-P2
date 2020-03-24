@@ -41,7 +41,7 @@ vec3 intensiyLightDir(vec3 Normal, vec3 ViewDir, vec3 diffuseColorK)
     vec3 reflectDir = reflect(-LightDir, Normal);
     vec3 halfwayDir = normalize(LightDir + ViewDir);
     //Material with lightDir components
-    vec3 ambient  = /*ka */AmbientOcclusion * dirLight.ambient;
+    vec3 ambient  = /*ka */AmbientOcclusion * dirLight.ambient * diffuseColorK;
     if(!dirLight.on)
         return ambient;
     vec3 diffuse  = diffuseColorK * /*dirLight.diffuse */ max(0.0f, dot(Normal, LightDir));
@@ -61,7 +61,7 @@ vec3 intensityPointLight(PointLight pointLight, vec3 normal, vec3 viewdir, vec3 
     vec3 R = reflect(-LightDir, normal);
     vec3 halfwayDir = normalize(LightDir + viewdir);
     
-    vec3 ambient  = /*ka */AmbientOcclusion * pointLight.ambientColor;
+    vec3 ambient  = /*ka */AmbientOcclusion * pointLight.ambientColor * Diffuse;
     if(!pointLight.on)
         return ambient;
 

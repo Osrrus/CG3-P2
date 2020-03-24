@@ -4,7 +4,7 @@ in vec2 vTexPos;
 // texture
 
 uniform sampler2D gPosition;
-uniform sampler2D gDiffuse;
+//uniform sampler2D gDiffuse;
 uniform sampler2D gNormal;
 uniform sampler2D noiseText;
 
@@ -17,18 +17,18 @@ uniform vec3 samples[64];
 //uniform float wWidth;
 //uniform float wHeight;
 
-const vec2 noiseScale = vec2(800.0/4.0, 600.0/4.0); 
+uniform vec2 noiseScale; 
 uniform mat4 projection;
-int kernelSize = 64;
-float radius = 0.5;
-float bias = 0.025;
+uniform int kernelSize;
+uniform float radius;
+uniform float bias;
 
 out vec4 color;
 void main()
 {
     vec3 FragPos = texture(gPosition, vTexPos).rgb;
     vec3 Normal = texture(gNormal, vTexPos).rgb;
-    vec3 Diffuse = texture(gDiffuse, vTexPos).rgb;
+//    vec3 Diffuse = texture(gDiffuse, vTexPos).rgb;
     vec3 noise = normalize(texture(noiseText, vTexPos * noiseScale).xyz);
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(noise - Normal * dot(noise, Normal));
