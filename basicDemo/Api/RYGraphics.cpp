@@ -9,7 +9,8 @@ RYGraphics::RYGraphics()
     this->lastTime = glfwGetTime();
     this->framesPerSecond = 0.0f;
     this->lastTime = glfwGetTime();
-	this->stereoscopy = false;
+    this->stereoscopy = false;
+    //this->IOD = ;
 	this->left = true;
 }
 

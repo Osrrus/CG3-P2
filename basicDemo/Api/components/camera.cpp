@@ -44,6 +44,16 @@ void Camera::mouseUpdate(const glm::vec2& newMousePosition) {
 	oldMousePosition = newMousePosition;
 }
 
+glm::mat4 Camera::getModelMatrixStereo(bool left, float depthZ)
+{
+	glm::mat4 model = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -depthZ));
+	/*model = glm::rotate(model, PI * rotateY, glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, PI * rotateX, glm::vec3(1.0f, 0.0f, 0.0f));*/
+
+	return model;
+}
+
 glm::mat4 Camera::getWorlToViewMatrix(bool stereo) const{
 	if (!stereo)
 	{
@@ -112,23 +122,45 @@ void Camera::stereoViewProjectionMatrices(float IOD, float depthZ, bool leftEye)
 {
 
 	glm::vec3 direction_z(0, 0, -1);
-	float left_right_direction = -0.5f;
+	float g_initial_fov = 45;
+	float dir = 0.5f;
+	float left_right_direction = -dir;
 	if (leftEye)
-		left_right_direction = 0.5f;
+		left_right_direction = dir;
 	float aspect_ratio = (float)width / (float)height;
 	
-	projectionMatrix = glm::perspective(glm::radians(fov/2.0f),aspect_ratio, nearZ, farZ);
+	//projectionMatrix = glm::perspective(glm::radians(fov/2.0f),aspect_ratio, nearZ, farZ);
 
+	//// update the view matrix
+	//viewMatrix =
+	//	glm::lookAt(
+	//		//eye position
+	//		position - viewDirection +
+	//		glm::vec3(left_right_direction * IOD / 2, 0, 0),
+	//		//centre position
+	//		position +
+	//		glm::vec3(left_right_direction * IOD / 2, 0, 0),
+	//		UP //up direction
+	//	);
+	float nearZ = 1.0f;
+	float farZ = 100.0f;
+	double frustumshift = (IOD / 2) * nearZ / depthZ;
+	float top = tan(g_initial_fov / 2) * nearZ;
+	float right =
+		aspect_ratio * top + frustumshift * left_right_direction;
+	//half screen
+	float left = -aspect_ratio * top + frustumshift * left_right_direction;
+	float bottom = -top;
+	projectionMatrix = glm::frustum(left, right, bottom, top, nearZ, farZ);
 	// update the view matrix
 	viewMatrix =
 		glm::lookAt(
-			//eye position
 			position - viewDirection +
 			glm::vec3(left_right_direction * IOD / 2, 0, 0),
-			//centre position
+			//eye position
 			position +
 			glm::vec3(left_right_direction * IOD / 2, 0, 0),
+			//centre position
 			UP //up direction
 		);
-	
 }
