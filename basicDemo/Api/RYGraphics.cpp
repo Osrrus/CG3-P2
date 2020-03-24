@@ -7,8 +7,6 @@ RYGraphics::RYGraphics()
     this->camera = new Camera();
     this->framesPerSecond = 0.0f;
     this->lastTime = glfwGetTime();
-	this->rightEye = new Camera(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(2.0f, 0.0f, 3.0f));
-	this->leftEye = new Camera(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(-2.0f, 0.0f, 3.0f));
     this->framesPerSecond = 0.0f;
     this->lastTime = glfwGetTime();
 	this->stereoscopy = false;

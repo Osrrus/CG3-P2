@@ -170,6 +170,9 @@
     <ClInclude Include="Api\ssao\SSAO.h">
       <Filter>Api\ssao</Filter>
     </ClInclude>
+    <ClInclude Include="Api\components\Helper.h">
+      <Filter>Api\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\basic.frag">

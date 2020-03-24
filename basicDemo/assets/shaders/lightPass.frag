@@ -1,6 +1,4 @@
 #version 430 core
-// Vertex color (interpolated/fragment)
-in vec3 vColor;
 // Vertex texture position (interpolated/fragment)
 in vec2 vTexPos;
 // texture
@@ -97,6 +95,6 @@ void main()
     result += intensiyLightDir(Normal, viewDir, Diffuse);
     color =  vec4(1.0f);
     color =  vec4(FragPos,1.0f);
-    color =  vec4(Diffuse,1.0f);
+    color =  vec4(Normal,1.0f);
     color =  vec4(result,1.0f);
 }

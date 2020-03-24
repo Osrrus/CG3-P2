@@ -26,6 +26,7 @@
 #include "Api/light/light.h"
 #include "Api/light/pointLight.h"
 #include "Api/gbuffer/gbuffer.h"
+#include "Api/ssao/SSAO.h"
 
 //assimp
 Assimp::Importer importer;
@@ -41,9 +42,9 @@ GLFWwindow *window;
 // Shader object
 Shader *shader, *shaderStereo, *shaderGBuff, *shaderLight;
 // Index (GPU) of the geometry buffer
-unsigned int VBO, quadVBO = 0;
+unsigned int VBO;
 // Index (GPU) vertex array object
-unsigned int VAO, quadVAO = 0;
+unsigned int VAO;
 // Index (GPU) of the texture
 unsigned int textureID;
 
@@ -55,11 +56,13 @@ particleSystem* parSystem;
 
 std::vector<Obj*> objects;
 light* dirLight;
-pointLight* pLight[N_POINTLIGHTS];
+ 
+vector<pointLight*> pLight;
 //Load models
 Mesh* mesh;
 
 GBuffer m_gbuffer;
+SSAO m_ssao;
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -224,32 +227,32 @@ void initGL()
     glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 }
 
-void renderQuad()
-{
-    if (quadVAO == 0)
-    {
-        float quadVertices[] = {
-            // positions        // texture Coords
-            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        };
-        // setup plane VAO
-        glGenVertexArrays(1, &quadVAO);
-        glGenBuffers(1, &quadVBO);
-        glBindVertexArray(quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    }
-    glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
-}
+//void renderQuad()
+//{
+//    if (quadVAO == 0)
+//    {
+//        float quadVertices[] = {
+//            // positions        // texture Coords
+//            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+//            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+//            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+//            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+//        };
+//        // setup plane VAO
+//        glGenVertexArrays(1, &quadVAO);
+//        glGenBuffers(1, &quadVBO);
+//        glBindVertexArray(quadVAO);
+//        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+//        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+//        glEnableVertexAttribArray(0);
+//        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+//        glEnableVertexAttribArray(1);
+//        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+//    }
+//    glBindVertexArray(quadVAO);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glBindVertexArray(0);
+//}
 
 /**
  * Builds all the geometry buffers and
@@ -327,13 +330,12 @@ bool init()
     }
     else {
         cout << "carg� modelo" << endl;
-        mesh->text.load("assets/textures/bricks2.jpg");
+        mesh->text.load("assets/textures/cottage_diffuse.png");
     }
     dirLight = new light(glm::vec3(-3.0f));
     for (int i = 0; i < N_POINTLIGHTS; i++)
     {
-        pLight[i] = new pointLight(glm::vec3(15.0f,20.0f,5.0f));
-
+        pLight.push_back(new pointLight(glm::vec3(15.0f,20.0f,5.0f)));
     }
 
     m_gbuffer.Init(windowWidth, windowHeight);
@@ -484,7 +486,7 @@ void render()
     
 }
 
-void geometryPass() {
+void geometryPass(Shader * shaderGBuff) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gbuffer.getFBO());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -505,48 +507,48 @@ void geometryPass() {
 
 }
 
-void lightPass() {
-    
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    shaderLight->use();
-    shaderLight->setInt("gPosition", 0);
-    shaderLight->setInt("gDiffuse", 1);
-    shaderLight->setInt("gNormal", 2);
-    shaderLight->setInt("gTextCoord", 3);
-    for (unsigned int i = 0; i < GBuffer::GBUFFER_NUM_TEXTURES; i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, m_gbuffer.m_textures[i]);
-    }
-    //Directional light
-    shaderLight->setVec3("dirLight.pos", dirLight->pos);
-    shaderLight->setVec3("dirLight.dir", dirLight->dir);
-    shaderLight->setVec3("dirLight.ambient", dirLight->color.ambient);
-    shaderLight->setVec3("dirLight.diffuse", dirLight->color.diffuse);
-    shaderLight->setVec3("dirLight.specular", dirLight->color.specular);
-    shaderLight->setBool("dirLight.on", dirLight->ON);
-    //Point light
-    for (int ii = 0; ii < N_POINTLIGHTS; ii++)
-    {
-        std::string it = std::to_string(ii);
-        shaderLight->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
-        shaderLight->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
-        shaderLight->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
-        shaderLight->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
-        shaderLight->setVec3("pointLights[" + it + "].attenuationK", pLight[ii]->getKAttenuation());
-        shaderLight->setBool("pointLights[" + it + "].on", pLight[ii]->ON);
-    }
-    shaderLight->setVec3("viewPos", Api->camera->position);
-
-    renderQuad();
-    
-    m_gbuffer.BindForReading();
-    
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); 
-    glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-}
+//void lightPass() {
+//    
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//    shaderLight->use();
+//    shaderLight->setInt("gPosition", 0);
+//    shaderLight->setInt("gDiffuse", 1);
+//    shaderLight->setInt("gNormal", 2);
+//    shaderLight->setInt("gTextCoord", 3);
+//    for (unsigned int i = 0; i < GBuffer::GBUFFER_NUM_TEXTURES; i++) {
+//        glActiveTexture(GL_TEXTURE0 + i);
+//        glBindTexture(GL_TEXTURE_2D, m_gbuffer.m_textures[i]);
+//    }
+//    //Directional light
+//    shaderLight->setVec3("dirLight.pos", dirLight->pos);
+//    shaderLight->setVec3("dirLight.dir", dirLight->dir);
+//    shaderLight->setVec3("dirLight.ambient", dirLight->color.ambient);
+//    shaderLight->setVec3("dirLight.diffuse", dirLight->color.diffuse);
+//    shaderLight->setVec3("dirLight.specular", dirLight->color.specular);
+//    shaderLight->setBool("dirLight.on", dirLight->ON);
+//    //Point light
+//    for (int ii = 0; ii < N_POINTLIGHTS; ii++)
+//    {
+//        std::string it = std::to_string(ii);
+//        shaderLight->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
+//        shaderLight->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
+//        shaderLight->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
+//        shaderLight->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
+//        shaderLight->setVec3("pointLights[" + it + "].attenuationK", pLight[ii]->getKAttenuation());
+//        shaderLight->setBool("pointLights[" + it + "].on", pLight[ii]->ON);
+//    }
+//    shaderLight->setVec3("viewPos", Api->camera->position);
+//
+//    renderQuad();
+//    
+//    m_gbuffer.BindForReading();
+//    
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); 
+//    glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//    
+//}
 
 /**
  * App main loop
@@ -563,10 +565,16 @@ void update()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        
-        geometryPass();
+        //deferred
+        geometryPass(shaderGBuff);
 
-        lightPass();
+        m_gbuffer.lightPass(shaderLight, dirLight, pLight, N_POINTLIGHTS, windowWidth, windowHeight, Api->camera->position);
+        //deferred
+
+        //SSAO
+        //geometryPass(shaderGBuff);
+
+        //SSAO
         //render();
         //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
         renderImGui();
@@ -613,11 +621,7 @@ int main(int argc, char const *argv[])
     delete mesh;
     delete dirLight;
     //delete pLight;
-    for (int i = 0; i < N_POINTLIGHTS; i++)
-    {
-        delete pLight[i];
-
-    }
+    pLight.clear();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

@@ -4,7 +4,7 @@
 
 GBuffer::GBuffer()
 {
-
+    quadVAO = quadVBO = 0;
 }
 
 GBuffer::~GBuffer()
@@ -20,6 +20,10 @@ GBuffer::~GBuffer()
     if (m_depthTexture != 0) {
         glDeleteTextures(1, &m_depthTexture);
     }
+    // Deletes the vertex array from the GPU
+    glDeleteVertexArrays(1, &quadVAO);
+    // Deletes the vertex object from the GPU
+    glDeleteBuffers(1, &quadVBO);
 }
 
 bool GBuffer::Init(unsigned int WindowWidth, unsigned int WindowHeight)
@@ -95,3 +99,74 @@ GLuint GBuffer::getFBO()
 {
     return m_fbo;
 }
+
+void GBuffer::lightPass(Shader * shaderLight, light *dirLight, std::vector<pointLight*> pLight, int N_L, int windowWidth, int windowHeight, glm::vec3 viewPos) {
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    shaderLight->use();
+    shaderLight->setInt("gPosition", 0);
+    shaderLight->setInt("gDiffuse", 1);
+    shaderLight->setInt("gNormal", 2);
+    shaderLight->setInt("gTextCoord", 3);
+    for (unsigned int i = 0; i < GBuffer::GBUFFER_NUM_TEXTURES; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, this->m_textures[i]);
+    }
+    //Directional light
+    shaderLight->setVec3("dirLight.pos", dirLight->pos);
+    shaderLight->setVec3("dirLight.dir", dirLight->dir);
+    shaderLight->setVec3("dirLight.ambient", dirLight->color.ambient);
+    shaderLight->setVec3("dirLight.diffuse", dirLight->color.diffuse);
+    shaderLight->setVec3("dirLight.specular", dirLight->color.specular);
+    shaderLight->setBool("dirLight.on", dirLight->ON);
+    //Point light
+    for (int ii = 0; ii < N_L; ii++)
+    {
+        std::string it = std::to_string(ii);
+        shaderLight->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
+        shaderLight->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
+        shaderLight->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
+        shaderLight->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
+        shaderLight->setVec3("pointLights[" + it + "].attenuationK", pLight[ii]->getKAttenuation());
+        shaderLight->setBool("pointLights[" + it + "].on", pLight[ii]->ON);
+    }
+    shaderLight->setVec3("viewPos", viewPos);
+
+    renderQuad(quadVAO, quadVBO);
+
+    this->BindForReading();
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
+//void GBuffer::renderQuad()
+//{
+//    if (quadVAO == 0)
+//    {
+//        float quadVertices[] = {
+//            // positions        // texture Coords
+//            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+//            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+//            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+//            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+//        };
+//        // setup plane VAO
+//        glGenVertexArrays(1, &quadVAO);
+//        glGenBuffers(1, &quadVBO);
+//        glBindVertexArray(quadVAO);
+//        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+//        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+//        glEnableVertexAttribArray(0);
+//        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+//        glEnableVertexAttribArray(1);
+//        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+//    }
+//    glBindVertexArray(quadVAO);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glBindVertexArray(0);
+//}
+//

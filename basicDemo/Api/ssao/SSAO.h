@@ -1,35 +1,36 @@
 #pragma once
 #include "../RYDefine.h"
+#include "../components/Helper.h"
+#include "../light/light.h"
+#include "../light/pointLight.h"
 
-class GBuffer
-{
-public:
-private:
-    
-};
+#include <random>
+
+using namespace std;
+
 class SSAO
 {
 public:
     SSAO();
     ~SSAO();
-	enum SSAO_TEXTURE_TYPE {
-        SSAO_TEXTURE_TYPE_POSITION,
-        SSAO_TEXTURE_TYPE_DIFFUSE,
-        SSAO_TEXTURE_TYPE_NORMAL,
-        SSAO_TEXTURE_TYPE_TEXCOORD,
-        SSAO_NUM_TEXTURES
-    };
+	
     bool Init(unsigned int WindowWidth, unsigned int WindowHeight);
 
-    void BindForWriting();
+    void initKernel();
 
-    void BindForReading();
-    void SetReadBuffer(int TextureType);
-    //void SetReadBuffer(SSAO_TEXTURE_TYPE TextureType);
-    GLuint getFBO();
-    GLuint m_textures[SSAO_NUM_TEXTURES];
+    void initNosieText();
+
+    float lerp(float a, float b, float f);
+
+    void genSSAOText(Shader* shader, Shader* shaderBlur, glm::mat4 proj, GLuint gPosition, GLuint gNormal);
+
+    void lightPass(Shader* shaderLight, light* dirLight, std::vector<pointLight*> pLight, int N_L, GLuint* m_textures, glm::mat4 view);
 
 private:
-    GLuint m_fbo;
-    GLuint m_depthTexture;
+    GLuint FBO, blurFBO;
+    std::vector<glm::vec3> ssaoKernel;
+    std::vector<glm::vec3> ssaoNoise;
+    GLuint ssaoColorBuffer, ssaoColorBufferBlur;
+    GLuint VAO, VBO;
+    GLuint noiseTexture;
 };

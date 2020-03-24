@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Api\components\camera.h" />
+    <ClInclude Include="Api\components\Helper.h" />
     <ClInclude Include="Api\components\loadTexture.h" />
     <ClInclude Include="Api\gbuffer\gbuffer.h" />
     <ClInclude Include="Api\light\light.h" />

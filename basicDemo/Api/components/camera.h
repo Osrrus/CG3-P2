@@ -16,7 +16,7 @@ class Camera {
 
 	public:
 		glm::vec3 viewDirection;	
-		Camera(glm::vec3 dir = glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3 pos = glm::vec3(0.0f, 0.0f, 3.0f));
+		Camera(glm::vec3 dir = glm::vec3(-5.0f, 0.0f, -4.0f), glm::vec3 pos = glm::vec3(15.0f, 15.0f, 23.0f));
 		void mouseUpdate( const glm::vec2& newMousePosition);
 		glm::mat4 getWorlToViewMatrix(bool stereo) const;
 		glm::mat4 getWorlToProjMatrix(bool stereo) const;

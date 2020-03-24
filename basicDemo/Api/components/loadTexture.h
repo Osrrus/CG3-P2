@@ -14,7 +14,7 @@ inline unsigned int loadT(const char* path) {
     // Loads the texture
     int textureWidth, textureHeight, numberOfChannels;
     // Flips the texture when loads it because in opengl the texture coordinates are flipped
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
     // Loads the texture file data
     unsigned char* data = stbi_load(path, &textureWidth, &textureHeight, &numberOfChannels, 0);
     if (data)
