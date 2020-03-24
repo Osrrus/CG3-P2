@@ -120,10 +120,10 @@ void SSAO::genSSAOText(Shader *shader, Shader* shaderBlur, glm::mat4 proj, GLuin
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     glClear(GL_COLOR_BUFFER_BIT);
     shader->use();
-    for (unsigned int i = 0; i < 64; ++i)
+    /*for (unsigned int i = 0; i < 64; ++i)
     {
         shader->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
-    }
+    }*/
     shader->setMat4("projection", proj);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gPosition);

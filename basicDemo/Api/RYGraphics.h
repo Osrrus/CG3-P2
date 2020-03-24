@@ -9,7 +9,8 @@ class RYGraphics
         float currentTime;
 
     public:
-		bool stereoscopy;
+        bool stereoscopy;
+        bool ssao;
 		bool left;
         float IOD;
 		Camera *camera;

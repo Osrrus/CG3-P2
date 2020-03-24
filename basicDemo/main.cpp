@@ -168,11 +168,17 @@ void renderImGui() {
     ImGui::Begin("API Controls");
     ImGui::Text("FPS: %d", Api->getFPS());
     ImGui::Separator();
-	if (ImGui::Button("Stereoscopy"))
-	{
-		Api->stereoscopy = !Api->stereoscopy;
-		//std::cout << Api->stereoscopy << std::endl;
-	}
+    if (ImGui::TreeNode("Stereoscopy"))
+    {
+        
+	    if (ImGui::Button("ON/OFF"))
+	    {
+		    Api->stereoscopy = !Api->stereoscopy;
+		    //std::cout << Api->stereoscopy << std::endl;
+	    }
+        ImGui::TreePop();
+
+    }
     //ImGui::InputText("float", buf, IM_ARRAYSIZE(buf));
     ImGui::Separator();
     if (ImGui::TreeNode("Directional Light"))
@@ -195,9 +201,9 @@ void renderImGui() {
         }
 
         ImGui::Text("Position of light");
-        ImGui::InputFloat("input float x", &pLight[0]->pos.x, 0.01f, 1.0f, "%.3f");
-        ImGui::InputFloat("input float y", &pLight[0]->pos.y, 0.01f, 1.0f, "%.3f");
-        ImGui::InputFloat("input float z", &pLight[0]->pos.z, 0.01f, 1.0f, "%.3f");
+        ImGui::InputFloat("x", &pLight[0]->pos.x, 0.1f, 1.0f, "%.3f");
+        ImGui::InputFloat("y", &pLight[0]->pos.y, 0.1f, 1.0f, "%.3f");
+        ImGui::InputFloat("z", &pLight[0]->pos.z, 0.1f, 1.0f, "%.3f");
         ImGui::TreePop();
     }
     ImGui::Separator();
@@ -238,7 +244,17 @@ void renderImGui() {
         ImGui::TreePop();
 
     }
-
+    ImGui::Separator();
+    if (ImGui::TreeNode("SSAO"))
+    {
+        if (ImGui::Button("ON/OFF"))
+        {
+            Api->ssao = !Api->ssao;
+            //std::cout << Api->stereoscopy << std::endl;
+        }
+        ImGui::TreePop();
+    }
+    ImGui::Separator();
     ImGui::End();
 
     // Render dear imgui into screen
@@ -355,6 +371,7 @@ bool init()
     shaderSSAO = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssao.frag");
     shaderSSAOBlur = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoBlur.frag");
     shaderSSAOLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoLight.frag");
+    
     // Loads all the geometry into the GPU
     buildGeometry();
     parSystem = new particleSystem();
@@ -380,6 +397,12 @@ bool init()
     }
 
     m_gbuffer.Init(windowWidth, windowHeight);
+    m_ssao.Init(windowWidth, windowHeight);
+    shaderSSAO->use();
+    for (unsigned int i = 0; i < 64; ++i)
+    {
+        shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", m_ssao.ssaoKernel[i]);
+    }
     //objects.push_back(loadObj("assets/models/cat.obj"));
     return true;
 }
@@ -485,60 +508,7 @@ void renderStereo() {
 		GL_TRUE);
 }
 
-/**
- * Render Function
- * */
-void render()
-{
-    // Clears the color and depth buffers from the frame buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    /** Draws code goes here **/
-    // Use the shader
-	if (!Api->stereoscopy)
-	{
-		shader->use();
-		shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
-		shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
-        shader->setVec3("viewPos", Api->camera->position);
-        shader->setInt("text", mesh->text.bind(0));
-        //Directional light
-        shader->setVec3("dirLight.pos", dirLight->pos);
-        shader->setVec3("dirLight.dir", dirLight->dir);
-        shader->setVec3("dirLight.ambient", dirLight->color.ambient);
-        shader->setVec3("dirLight.diffuse", dirLight->color.diffuse);
-        shader->setVec3("dirLight.specular", dirLight->color.specular);
-        shader->setBool("dirLight.on", dirLight->ON);
-        //Point light
-        for (int ii = 0; ii < N_POINTLIGHTS; ii++)
-        {
-            std::string it = std::to_string(ii);
-            shader->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
-            shader->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
-            shader->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
-            shader->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
-            shader->setVec3("pointLights[" + it + "].attenuationK", pLight[ii]->getKAttenuation());
-            shader->setBool("pointLights[" + it + "].on", pLight[ii]->ON);
-        }
-
-	   
-		// Binds the vertex array to be drawn
-        mesh->draw();
-		//glBindVertexArray(VAO);
-		// Renders the triangle gemotry
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glBindVertexArray(0);
-	}
-	else
-	{
-		renderStereo();
-	}
-
-    // Swap the buffer
-    
-}
-
-
-void geometryPass(Shader * shaderGBuff) {
+void geometryPass(Shader* shaderGBuff) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gbuffer.getFBO());
@@ -559,6 +529,51 @@ void geometryPass(Shader * shaderGBuff) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
+
+/**
+ * Render Function
+ * */
+void render()
+{
+    // Clears the color and depth buffers from the frame buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    /** Draws code goes here **/
+    // Use the shader
+	if (!Api->stereoscopy)
+	{
+        if (!Api->ssao)
+        {
+            geometryPass(shaderGBuff);
+
+            m_gbuffer.lightPass(shaderLight, dirLight, pLight, N_POINTLIGHTS, windowWidth, windowHeight, Api->camera->position);
+
+            parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy), Api->camera->position);
+        }
+        else
+        {
+        //SSAO
+            
+            geometryPass(shaderGBuff);
+            //Generate texture
+            m_ssao.genSSAOText(shaderSSAO, shaderSSAOBlur, Api->camera->getWorlToProjMatrix(Api->stereoscopy), 
+            m_gbuffer.m_textures[GBuffer::GBUFFER_TEXTURE_TYPE_POSITION], m_gbuffer.m_textures[GBuffer::GBUFFER_TEXTURE_TYPE_NORMAL]);
+           m_ssao.lightPass(shaderSSAOLight, dirLight, pLight, N_POINTLIGHTS, m_gbuffer.m_textures, Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+        //SSAO
+
+        }
+        //deferred
+
+
+	}
+	else
+	{
+		renderStereo();
+	}
+
+    // Swap the buffer
+    
+}
+
 
 //void lightPass() {
 //    
@@ -617,25 +632,8 @@ void update()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        //deferred
-        if (Api->stereoscopy)
-        {
-            renderStereo();
-        }
-        else {
-
-            geometryPass(shaderGBuff);
-
-            m_gbuffer.lightPass(shaderLight, dirLight, pLight, N_POINTLIGHTS, windowWidth, windowHeight, Api->camera->position);
-            //deferred
-
-            //SSAO
-            //geometryPass(shaderGBuff);
-
-            //SSAO
-            //render();
-            parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy),Api->camera->position);
-        }
+        
+        render();
         
         renderImGui();
         // Check and call events

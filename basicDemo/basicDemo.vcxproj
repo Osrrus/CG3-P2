@@ -197,6 +197,9 @@
     <None Include="assets\shaders\gbuffer.vert" />
     <None Include="assets\shaders\lightPass.frag" />
     <None Include="assets\shaders\lightPass.vert" />
+    <None Include="assets\shaders\ssao.frag" />
+    <None Include="assets\shaders\ssaoBlur.frag" />
+    <None Include="assets\shaders\ssaoLight.frag" />
     <None Include="assets\shaders\stereo.frag" />
     <None Include="assets\shaders\stereo.vert" />
   </ItemGroup>

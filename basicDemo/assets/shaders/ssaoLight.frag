@@ -31,10 +31,10 @@ struct PointLight {
     bool on;
 };    
 uniform PointLight pointLights[1];
-float AmbientOcclusion = texture(SSAO, vTexPos).r;
 
 vec3 intensiyLightDir(vec3 Normal, vec3 ViewDir, vec3 diffuseColorK)
 {
+    float AmbientOcclusion = texture(SSAO, vTexPos).r;
     float n = 15.0f;
     //Directional light
     vec3 LightDir = normalize(-dirLight.dir); // Solo usamos la entrada del tweakbar
@@ -53,6 +53,7 @@ vec3 intensiyLightDir(vec3 Normal, vec3 ViewDir, vec3 diffuseColorK)
 vec3 intensityPointLight(PointLight pointLight, vec3 normal, vec3 viewdir, vec3 Diffuse)
 {
     float n = 15.0f;
+    float AmbientOcclusion = texture(SSAO, vTexPos).r;
     vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
     vec3 FragPos = texture(gPosition, vTexPos).rgb;
 
@@ -93,6 +94,6 @@ void main()
     vec3 result = vec3(0.0f);
     result += intensityPointLight(pointLights[0], Normal, viewDir, Diffuse);
     result += intensiyLightDir(Normal, viewDir, Diffuse);
-
+    
     color =  vec4(result,1.0f);
 }

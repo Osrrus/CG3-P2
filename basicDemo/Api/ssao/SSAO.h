@@ -26,9 +26,9 @@ public:
 
     void lightPass(Shader* shaderLight, light* dirLight, std::vector<pointLight*> pLight, int N_L, GLuint* m_textures, glm::mat4 view);
     float radius, bias;
+    std::vector<glm::vec3> ssaoKernel;
 private:
     GLuint FBO, blurFBO;
-    std::vector<glm::vec3> ssaoKernel;
     std::vector<glm::vec3> ssaoNoise;
     GLuint ssaoColorBuffer, ssaoColorBufferBlur;
     GLuint VAO, VBO;
