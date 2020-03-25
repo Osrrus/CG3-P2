@@ -1,9 +1,7 @@
-﻿  SSAO.cpp
-C:\Users\Yuliana\Desktop\CG3-P2\basicDemo\Api\ssao\SSAO.cpp(85,32): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\Yuliana\Desktop\CG3-P2\basicDemo\Api\ssao\SSAO.cpp(127,32): warning C4018: '<': no coinciden signed/unsigned
+﻿  pointLight.cpp
   Generando código
-  23 of 2029 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
+  2 of 2033 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    24 functions had inline decision re-evaluated but remain unchanged
+    25 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
   basicDemo.vcxproj -> C:\Users\Yuliana\Desktop\CG3-P2\\Release\basicDemo.exe

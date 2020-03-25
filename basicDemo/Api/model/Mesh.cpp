@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "../../Shader.h"
 Mesh::MeshEntry::MeshEntry()
 {
     /*m_VAO = -1;
@@ -6,6 +7,7 @@ Mesh::MeshEntry::MeshEntry()
     m_IBO = -1;
     m_Size = 0;
     materialIndex = -1;*/
+    model = glm::mat4(1.0f);
 }
 
 Mesh::MeshEntry::~MeshEntry()
@@ -91,7 +93,7 @@ bool Mesh::LoadMesh(const std::string& Filename)
     return Ret;
 }
 
-void Mesh::draw()
+void Mesh::draw(Shader* shader)
 {
     int m_EntSize = m_Entries.size();
     for (unsigned int i = 0; i < m_EntSize; i++)
@@ -112,6 +114,8 @@ void Mesh::draw()
         if (MaterialIndex < m_Textures.size() && m_Textures[MaterialIndex]) {
             m_Textures[MaterialIndex]->Bind(GL_TEXTURE0);
         }*/
+        shader->use();
+        shader->setMat4("model", m_Entries[i].model);
         glBindVertexArray(m_Entries[i].m_VAO);
         glDrawElements(GL_TRIANGLES, m_Entries[i].m_Size, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -121,6 +125,14 @@ void Mesh::draw()
         glDisableVertexAttribArray(2);*/
     }
 
+}
+
+void Mesh::setModelInOneMesh(int n, glm::mat4 model)
+{
+    if (n < m_Entries.size())
+    {
+        m_Entries[n].model = model;
+    }
 }
 
 bool Mesh::InitFromScene(const aiScene* scene, const std::string& Filename)

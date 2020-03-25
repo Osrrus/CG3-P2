@@ -31,9 +31,9 @@
 //assimp
 Assimp::Importer importer;
 // Window current width
-extern unsigned int windowWidth = 800;
+extern unsigned int windowWidth = 1024;
 // Window current height
-extern unsigned int windowHeight = 600;
+extern unsigned int windowHeight = 800;
 // Window title
 const char *windowTitle = "CG3-P2";
 // Window pointer
@@ -415,7 +415,8 @@ bool init()
     m_gbuffer.Init(windowWidth, windowHeight);
     m_ssao.Init(windowWidth, windowHeight);
     shaderSSAO->use();
-    for (unsigned int i = 0; i < 64; ++i)
+    int tamK = m_ssao.ssaoKernel.size();
+    for (unsigned int i = 0; i < tamK; ++i)
     {
         shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", m_ssao.ssaoKernel[i]);
     }
@@ -499,7 +500,7 @@ void renderStereo() {
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
-    mesh->draw();
+    mesh->draw(shaderStereo);
 
 	shaderStereo->use();
 	glColorMask(GL_TRUE,
@@ -517,7 +518,7 @@ void renderStereo() {
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
-    mesh->draw();
+    mesh->draw(shaderStereo);
     glColorMask(GL_TRUE,
 		GL_TRUE,
 		GL_TRUE,
@@ -536,7 +537,7 @@ void geometryPass(Shader* shaderGBuff) {
     shaderGBuff->setVec3("viewPos", Api->camera->position);
     shaderGBuff->setInt("text", mesh->text.bind(0));
     shaderGBuff->setInt("ssao",Api->ssao);
-    mesh->draw();
+    mesh->draw(shaderGBuff);
     //glBindVertexArray(VAO);
     //// Renders the triangle gemotry
     //glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -561,10 +562,13 @@ void render()
         if (!Api->ssao)
         {
             geometryPass(shaderGBuff);
-
             m_gbuffer.lightPass(shaderLight, dirLight, pLight, N_POINTLIGHTS, windowWidth, windowHeight, Api->camera->position);
 
             parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy), Api->camera->position);
+            shader->use();
+            shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
+            shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+            pLight[0]->draw(shader);
         }
         else
         {
@@ -574,7 +578,7 @@ void render()
             //Generate texture
             m_ssao.genSSAOText(shaderSSAO, shaderSSAOBlur, Api->camera->getWorlToProjMatrix(Api->stereoscopy), 
             m_gbuffer.m_textures[GBuffer::GBUFFER_TEXTURE_TYPE_POSITION], m_gbuffer.m_textures[GBuffer::GBUFFER_TEXTURE_TYPE_NORMAL]);
-           m_ssao.lightPass(shaderSSAOLight, dirLight, pLight, N_POINTLIGHTS, m_gbuffer.m_textures, Api->camera->getWorlToViewMatrix(Api->stereoscopy));
+            m_ssao.lightPass(shaderSSAOLight, dirLight, pLight, N_POINTLIGHTS, m_gbuffer.m_textures, Api->camera->getWorlToViewMatrix(Api->stereoscopy));
         //SSAO
 
         }

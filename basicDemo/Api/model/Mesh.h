@@ -8,7 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "../components/loadTexture.h"
-
+#include "../Shader.h"
 using namespace std;
 struct Vertex {
     glm::vec3 Position;
@@ -51,7 +51,11 @@ public:
 
     bool LoadMesh(const std::string& Filename);
 
-    void draw();
+    void draw(Shader* shader);
+
+    void setModelInOneMesh(int n, glm::mat4 model);
+
+
     Texture text;
 
 private:
@@ -68,6 +72,7 @@ private:
         int m_Size;
         unsigned int materialIndex;
         unsigned int *texture;
+        glm::mat4 model;
         MeshEntry();
         ~MeshEntry();
         void init(vector<Vertex> vertices, vector<unsigned int> indices);

@@ -14,10 +14,6 @@ class RYGraphics
 		bool left;
         float IOD;
 		Camera *camera;
-		/* Esteroscopy */
-		Camera *rightEye;
-		Camera *leftEye;
-
         RYGraphics();
         ~RYGraphics();
 
