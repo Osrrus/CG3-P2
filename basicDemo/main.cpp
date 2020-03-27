@@ -12,11 +12,16 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "Shader.h"
 #include "lib/ImGui/imgui.h"
 #include "lib/ImGui/imgui_impl_glfw.h"
 #include "lib/ImGui/imgui_impl_opengl3.h"
 #include "lib/ImGui/imconfig.h"
+#include "Windows.h"
+#include "Commdlg.h"
 
 #include "Api/RYDefine.h"
 #include "Api/RYGraphics.h"
@@ -60,13 +65,14 @@ light* dirLight;
 vector<pointLight*> pLight;
 //Load models
 Mesh* mesh;
-
+vector<Mesh*> meshes;
+vector<Texture*> textures;
 GBuffer m_gbuffer;
 SSAO m_ssao;
 
-
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
+string loadPath();
 
 /* *
  * Handles the window resize
@@ -168,6 +174,25 @@ void renderImGui() {
 
     ImGui::Begin("API Controls");
     ImGui::Text("FPS: %d", Api->getFPS());
+    ImGui::Separator();
+    if (ImGui::Button("Load model"))
+    {
+        string arch = loadPath();
+        if (arch != "")
+        {
+            Mesh* m = new Mesh();
+            if (m->LoadMesh(arch))
+            {
+                meshes.push_back(m);
+            }
+            else
+            {
+                cout << "no cargó archivo" << endl;
+            }
+        }
+        
+    }
+
     ImGui::Separator();
     if (ImGui::TreeNode("Stereoscopy"))
     {
@@ -500,6 +525,11 @@ void renderStereo() {
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
+    int sizeM = meshes.size();
+    for (int i = 0; i < sizeM; i++)
+    {
+        meshes[i]->draw(shaderStereo);
+    }
     mesh->draw(shaderStereo);
 
 	shaderStereo->use();
@@ -518,6 +548,10 @@ void renderStereo() {
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
+    for (int i = 0; i < sizeM; i++)
+    {
+        meshes[i]->draw(shaderStereo);
+    }
     mesh->draw(shaderStereo);
     glColorMask(GL_TRUE,
 		GL_TRUE,
@@ -537,6 +571,11 @@ void geometryPass(Shader* shaderGBuff) {
     shaderGBuff->setVec3("viewPos", Api->camera->position);
     shaderGBuff->setInt("text", mesh->text.bind(0));
     shaderGBuff->setInt("ssao",Api->ssao);
+    int sizeM = meshes.size();
+    for (int i = 0; i < sizeM; i++)
+    {
+        meshes[i]->draw(shaderGBuff);
+    }
     mesh->draw(shaderGBuff);
     //glBindVertexArray(VAO);
     //// Renders the triangle gemotry
@@ -724,4 +763,22 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
     pressLeft = action == GLFW_PRESS ? true : false;
+}
+
+string loadPath()
+{
+    OPENFILENAME ofn;
+    char fileName[MAX_PATH] = "";
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = "OBJ Files(.obj)\0*.obj\0OFF Files(.off)\0*.off";
+    ofn.lpstrFile = fileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = "";
+    string fileNameStr;
+    if (GetOpenFileName(&ofn))
+        fileNameStr = fileName;
+    return fileNameStr;
 }

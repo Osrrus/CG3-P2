@@ -71,7 +71,7 @@ private:
         GLuint m_IBO;
         int m_Size;
         unsigned int materialIndex;
-        unsigned int *texture;
+        Texture* text;
         glm::mat4 model;
         MeshEntry();
         ~MeshEntry();
