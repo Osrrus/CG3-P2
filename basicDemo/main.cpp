@@ -593,16 +593,16 @@ void renderStereo() {
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
+    mesh->draw(shaderStereo);
     int sizeM = meshes.size();
     for (int i = 0; i < sizeM; i++)
     {
-        shaderStereo->setInt("text", meshes[i]->text.bind(1));
+        shaderStereo->setBool("hasText", meshes[i]->hasText);
 
-        
+        shaderStereo->setInt("text", meshes[i]->text.bind(0));
 
         meshes[i]->draw(shaderStereo);
     }
-    mesh->draw(shaderStereo);
 
 	shaderStereo->use();
 	glColorMask(GL_TRUE,
@@ -620,11 +620,15 @@ void renderStereo() {
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
+    mesh->draw(shaderStereo);
     for (int i = 0; i < sizeM; i++)
     {
+        shaderStereo->setBool("hasText", meshes[i]->hasText);
+
+        shaderStereo->setInt("text", meshes[i]->text.bind(0));
+
         meshes[i]->draw(shaderStereo);
     }
-    mesh->draw(shaderStereo);
     glColorMask(GL_TRUE,
 		GL_TRUE,
 		GL_TRUE,
