@@ -8,6 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "../components/loadTexture.h"
+#include "../components/Helper.h"
 #include "../Shader.h"
 using namespace std;
 struct Vertex {
@@ -28,6 +29,8 @@ struct Vertex {
 struct Texture {
     unsigned int id;
     string type;
+    string path;
+    string name;
     Texture();
     ~Texture();
     void load(const char* path) 
@@ -49,6 +52,8 @@ public:
 
     ~Mesh();
 
+    string SplitFilename(const std::string& str);
+
     bool LoadMesh(const std::string& Filename);
 
     void draw(Shader* shader);
@@ -57,6 +62,8 @@ public:
 
 
     Texture text;
+    bool hasText;
+    string m_filename;
 
 private:
     bool InitFromScene(const aiScene* scene, const std::string& Filename);
@@ -80,7 +87,6 @@ private:
     };
 
 
-    string m_filename;
     std::vector<MeshEntry> m_Entries;
     //std::vector<Texture*> m_Textures;
 };

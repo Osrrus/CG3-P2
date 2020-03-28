@@ -15,6 +15,7 @@
 #include <stb_image.h>
 
 #include "components/camera.h"
+#include "components/Helper.h"
 
 #include "../Shader.h"
 

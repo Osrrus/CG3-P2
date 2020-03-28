@@ -22,6 +22,7 @@ Mesh::MeshEntry::~MeshEntry()
         glDeleteBuffers(1, &m_IBO);
     }
 }
+
 void printInfo(vector<Vertex> vertices) 
 {
 
@@ -66,11 +67,22 @@ void Mesh::MeshEntry::init(vector<Vertex> vertices, vector<unsigned int> indices
 
 Mesh::Mesh()
 {
+    hasText = false;
+
 }
 
 Mesh::~Mesh()
 {
     Clear();
+}
+
+string Mesh::SplitFilename (const std::string& str)
+{
+  //std::cout << "Splitting: " << str << '\n';
+  std::size_t found = str.find_last_of("/\\");
+  //std::cout << " path: " << str.substr(0,found) << '\n';
+  //std::cout << " file: " << str.substr(found+1) << '\n';
+  return str.substr(found + 1);
 }
 
 bool Mesh::LoadMesh(const std::string& Filename)
@@ -82,7 +94,7 @@ bool Mesh::LoadMesh(const std::string& Filename)
     Assimp::Importer Importer;
 
     const aiScene* pScene = Importer.ReadFile(Filename.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs );
-
+    m_filename = SplitFilename(Filename);
     if (pScene) {
         Ret = InitFromScene(pScene, Filename);
     }

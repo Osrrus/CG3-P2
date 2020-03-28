@@ -1,5 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #define N_POINTLIGHTS 1
+#define TYPE_MODEL 'm'
+#define TYPE_TEXTURE 't'
 #include <glad/glad.h> // Glad has to be include before glfw
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -36,14 +38,13 @@
 //assimp
 Assimp::Importer importer;
 // Window current width
-extern unsigned int windowWidth = 1024;
+extern unsigned int windowWidth = 800;
 // Window current height
-extern unsigned int windowHeight = 800;
+extern unsigned int windowHeight = 600;
 // Window title
 const char *windowTitle = "CG3-P2";
 // Window pointer
 GLFWwindow *window;
-
 // Shader object
 Shader *shader, *shaderStereo, *shaderGBuff, *shaderLight, *shaderSSAO, *shaderSSAOBlur, *shaderSSAOLight;
 // Index (GPU) of the geometry buffer
@@ -66,13 +67,17 @@ vector<pointLight*> pLight;
 //Load models
 Mesh* mesh;
 vector<Mesh*> meshes;
-vector<Texture*> textures;
+vector<Texture> textures;
+int sizeItem = 0;
+int selectedModel = 0;
+int textSelec;
 GBuffer m_gbuffer;
 SSAO m_ssao;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
-string loadPath();
+string loadPath(char type);
+string SplitFilename(const std::string& str);
 
 /* *
  * Handles the window resize
@@ -163,21 +168,66 @@ void initImGui(){
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
-
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
 }
+const static char* current_item = NULL;
 
 void renderImGui() {
 
     ImGui::Begin("API Controls");
     ImGui::Text("FPS: %d", Api->getFPS());
     ImGui::Separator();
+    
+    float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+
+    ImGui::InputInt("Id selected", &selectedModel, 1, 1);
+    if (selectedModel < 0 || selectedModel >= meshes.size())
+    {
+        selectedModel = 0;
+    }
+    else
+    {
+        ImGui::Text("Selected model: %s", meshes[selectedModel]->m_filename.c_str());
+
+        ImGui::Text("Textures");
+    
+        if (ImGui::BeginCombo("##combo", current_item)) // The second parameter is the label previewed before opening the combo.
+        {
+            for (int n = 0; n < sizeItem; n++)
+            {
+                //const char* it =;
+                bool is_selected = (current_item == textures[n].name.c_str()); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(textures[n].name.c_str(), is_selected))
+                {
+                    current_item = textures[n].name.c_str();
+
+                    textSelec = n;
+                }
+                if (is_selected)
+                {
+                    ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::SameLine(0, spacing);
+        if (current_item != NULL && ImGui::Button("Apply"))
+        {
+            meshes[selectedModel]->text.load(textures[textSelec].path.c_str());
+            meshes[selectedModel]->hasText = true;
+            cout << textSelec << endl;
+        }
+
+    }
+    ImGui::Separator();
+
     if (ImGui::Button("Load model"))
     {
-        string arch = loadPath();
+        string arch = loadPath(TYPE_MODEL);
         if (arch != "")
         {
             Mesh* m = new Mesh();
@@ -191,6 +241,23 @@ void renderImGui() {
             }
         }
         
+    }
+    ImGui::SameLine(0, spacing);
+    if (ImGui::Button("Load texture"))
+    {
+        string arch = loadPath(TYPE_TEXTURE);
+        if (arch != "")
+        {
+            Texture t;
+            //t.load(arch.c_str());
+            //t.id = loadT("C:\\Users\\Yuliana\\Desktop\\CG3-P2\\basicDemo\\assets\\textures\\bricks2.jpg");
+            t.path = arch;
+            string asd = SplitFilename(arch);
+            t.name = asd;
+            textures.push_back(t);
+            sizeItem++;
+        }
+
     }
 
     ImGui::Separator();
@@ -429,7 +496,8 @@ bool init()
     }
     else {
         cout << "carg� modelo" << endl;
-        mesh->text.load("assets/textures/cottage_diffuse.png");
+        mesh->text.load("assets\\textures\\cottage_diffuse.png");
+        mesh->hasText = true;
     }
     dirLight = new light(glm::vec3(-3.0f));
     for (int i = 0; i < N_POINTLIGHTS; i++)
@@ -528,6 +596,10 @@ void renderStereo() {
     int sizeM = meshes.size();
     for (int i = 0; i < sizeM; i++)
     {
+        shaderStereo->setInt("text", meshes[i]->text.bind(1));
+
+        
+
         meshes[i]->draw(shaderStereo);
     }
     mesh->draw(shaderStereo);
@@ -569,14 +641,24 @@ void geometryPass(Shader* shaderGBuff) {
     shaderGBuff->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
     shaderGBuff->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
     shaderGBuff->setVec3("viewPos", Api->camera->position);
+    shaderGBuff->setBool("hasText", mesh->hasText);
+
     shaderGBuff->setInt("text", mesh->text.bind(0));
     shaderGBuff->setInt("ssao",Api->ssao);
+    mesh->draw(shaderGBuff);
     int sizeM = meshes.size();
+    glDisable(GL_TEXTURE_2D);
     for (int i = 0; i < sizeM; i++)
     {
+        //shaderGBuff->use();
+        shaderGBuff->setBool("hasText", meshes[i]->hasText);
+
+        shaderGBuff->setInt("text", meshes[i]->text.bind(0));
+
         meshes[i]->draw(shaderGBuff);
+        glDisable(GL_TEXTURE_2D);
+
     }
-    mesh->draw(shaderGBuff);
     //glBindVertexArray(VAO);
     //// Renders the triangle gemotry
     //glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -600,10 +682,10 @@ void render()
 	{
         if (!Api->ssao)
         {
+            //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy), Api->camera->position);
             geometryPass(shaderGBuff);
             m_gbuffer.lightPass(shaderLight, dirLight, pLight, N_POINTLIGHTS, windowWidth, windowHeight, Api->camera->position);
 
-            parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy), Api->camera->position);
             shader->use();
             shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
             shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
@@ -765,14 +847,25 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
     pressLeft = action == GLFW_PRESS ? true : false;
 }
 
-string loadPath()
+string loadPath(char type)
 {
+    //type
+    // 'm' == load model
+    // 't' == load texture
     OPENFILENAME ofn;
     char fileName[MAX_PATH] = "";
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = NULL;
-    ofn.lpstrFilter = "OBJ Files(.obj)\0*.obj\0OFF Files(.off)\0*.off";
+    if (type == 'm')
+    {
+        ofn.lpstrFilter = "OBJ Files(.obj)\0*.obj\0OFF Files(.off)\0*.off\0FBX Files(.fbx)\0*.fbx";
+    }
+    else
+    {
+        ofn.lpstrFilter = "JPG Files(.jpg)\0*.jpg\0PNG Files(.png)\0*.png";
+
+    }
     ofn.lpstrFile = fileName;
     ofn.nMaxFile = MAX_PATH;
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
@@ -781,4 +874,13 @@ string loadPath()
     if (GetOpenFileName(&ofn))
         fileNameStr = fileName;
     return fileNameStr;
+}
+
+string SplitFilename(const std::string& str)
+{
+    //std::cout << "Splitting: " << str << '\n';
+    std::size_t found = str.find_last_of("/\\");
+    //std::cout << " path: " << str.substr(0,found) << '\n';
+    //std::cout << " file: " << str.substr(found+1) << '\n';
+    return str.substr(found + 1);
 }
