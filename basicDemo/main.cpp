@@ -70,6 +70,7 @@ vector<Mesh*> meshes;
 vector<Texture> textures;
 int sizeItem = 0;
 int selectedModel = 0;
+int selectedSubModel = 0;
 int textSelec;
 GBuffer m_gbuffer;
 SSAO m_ssao;
@@ -191,9 +192,17 @@ void renderImGui() {
     else
     {
         ImGui::Text("Selected model: %s", meshes[selectedModel]->m_filename.c_str());
+        int subMesh = meshes[selectedModel]->m_Entries.size();
+        if (subMesh > 1)
+        {
+            ImGui::InputInt("Id selected", &selectedSubModel, 1, 1);
+            if (selectedSubModel < 0 || selectedSubModel >= meshes.size())
+            {
+                selectedSubModel = 0;
+            }
+        }
 
         ImGui::Text("Textures");
-    
         if (ImGui::BeginCombo("##combo", current_item)) // The second parameter is the label previewed before opening the combo.
         {
             for (int n = 0; n < sizeItem; n++)
@@ -221,6 +230,19 @@ void renderImGui() {
             meshes[selectedModel]->hasText = true;
             cout << textSelec << endl;
         }
+        ImGui::Separator();
+        ImGui::Text("Transformations");
+        //Changes in meshes[selectedModel]->m_Entries[selectedSubModel]
+        static float vec4f[4] = { meshes[selectedModel]->m_Entries[selectedSubModel].trans.x, 
+            meshes[selectedModel]->m_Entries[selectedSubModel].trans.y, 
+            meshes[selectedModel]->m_Entries[selectedSubModel].trans.z, 0.44f };
+        ImGui::SliderFloat3("Translation", vec4f, -100.0f, 100.0f);
+        meshes[selectedModel]->m_Entries[selectedSubModel].trans = glm::vec3(vec4f[0], vec4f[1], vec4f[2]);
+        static float vec4fs[4] = { meshes[selectedModel]->m_Entries[selectedSubModel].scale.x,
+            meshes[selectedModel]->m_Entries[selectedSubModel].scale.y,
+            meshes[selectedModel]->m_Entries[selectedSubModel].scale.z, 0.44f };
+        ImGui::SliderFloat3("Scale", vec4fs, -100.0f, 100.0f);
+        meshes[selectedModel]->m_Entries[selectedSubModel].scale = glm::vec3(vec4fs[0], vec4fs[1], vec4fs[2]);
 
     }
     ImGui::Separator();

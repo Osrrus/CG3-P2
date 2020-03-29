@@ -1,12 +1,6 @@
 #pragma once
-#include <glad/glad.h> // Glad has to be include before glfw
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <iostream>
-#include <vector>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "../RYDefine.h"
+
 #include "../components/loadTexture.h"
 #include "../components/Helper.h"
 #include "../Shader.h"
@@ -58,18 +52,12 @@ public:
 
     void draw(Shader* shader);
 
-    void setModelInOneMesh(int n, glm::mat4 model);
+    void setModelInOneMesh(int n, glm::vec3 t, glm::vec3 r, glm::vec3 s);
 
 
     Texture text;
     bool hasText;
     string m_filename;
-
-private:
-    bool InitFromScene(const aiScene* scene, const std::string& Filename);
-    void InitMesh(unsigned int Index, const aiMesh* paiMesh);
-    bool InitMaterials(const aiScene* pScene, const std::string& Filename);
-    void Clear();
 
     struct MeshEntry
     {
@@ -79,14 +67,23 @@ private:
         int m_Size;
         unsigned int materialIndex;
         Texture* text;
+        glm::vec3 trans;
+        glm::vec3 rotate;
+        glm::vec3 scale;
         glm::mat4 model;
         MeshEntry();
         ~MeshEntry();
         void init(vector<Vertex> vertices, vector<unsigned int> indices);
 
     };
-
-
     std::vector<MeshEntry> m_Entries;
+private:
+    bool InitFromScene(const aiScene* scene, const std::string& Filename);
+    void InitMesh(unsigned int Index, const aiMesh* paiMesh);
+    bool InitMaterials(const aiScene* pScene, const std::string& Filename);
+    void Clear();
+
+
+
     //std::vector<Texture*> m_Textures;
 };

@@ -27,9 +27,10 @@ glm::vec3 pointLight::getKAttenuation()
 
 void pointLight::draw(Shader* shader)
 {
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), this->pos) * glm::scale(glm::mat4(1.0f), glm::vec3(5.5f));
+	//glm::mat4 model = glm::translate(glm::mat4(1.0f), this->pos) * glm::scale(glm::mat4(1.0f), glm::vec3(5.5f));
+
 	//model = glm::scale();
-	meshL->setModelInOneMesh(0, model);
+	meshL->setModelInOneMesh(0, this->pos, glm::vec3(1.0f), glm::vec3(5.5f));
 	//set color
 	shader->use();
 	shader->setVec3("colorDiff", color.diffuse);

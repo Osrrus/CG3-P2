@@ -7,7 +7,8 @@ Mesh::MeshEntry::MeshEntry()
     m_IBO = -1;
     m_Size = 0;
     materialIndex = -1;*/
-    model = glm::mat4(1.0f);
+    model =  glm::mat4(1.0f);
+    trans = rotate = scale = glm::vec3(1.0f);
 }
 
 Mesh::MeshEntry::~MeshEntry()
@@ -127,6 +128,7 @@ void Mesh::draw(Shader* shader)
             m_Textures[MaterialIndex]->Bind(GL_TEXTURE0);
         }*/
         shader->use();
+        m_Entries[i].model = glm::translate(m_Entries[i].trans) /* glm::rotate(m_Entries[i].rotate,)*/ * glm::scale(m_Entries[i].scale);
         shader->setMat4("model", m_Entries[i].model);
         glBindVertexArray(m_Entries[i].m_VAO);
         glDrawElements(GL_TRIANGLES, m_Entries[i].m_Size, GL_UNSIGNED_INT, 0);
@@ -139,11 +141,13 @@ void Mesh::draw(Shader* shader)
 
 }
 
-void Mesh::setModelInOneMesh(int n, glm::mat4 model)
+void Mesh::setModelInOneMesh(int n,glm::vec3 t, glm::vec3 r, glm::vec3 s)
 {
     if (n < m_Entries.size())
     {
-        m_Entries[n].model = model;
+        m_Entries[n].trans = t;
+        m_Entries[n].rotate = r;
+        m_Entries[n].scale = s;
     }
 }
 
