@@ -2,14 +2,14 @@
 
 #define PARTICLENUMBER 2000
 
-particleSystem::particleSystem():position(0.0f),direction(0.0f,0.1f,0.0f),color(0.2f,0.25f,0.5f,1.0f),scale(1.0f)
+particleSystem::particleSystem():position(0.0f),direction(0.0f,0.1f,0.0f),color(0.2f,0.25f,0.5f,1.0f),scale(2.0f)
 {
 	this->spawParticle = 1;
 	this->numberOfparticles = PARTICLENUMBER;
 	this->active = true;
 	this->lastActiveParticle = 0;
 	this->shader = new Shader("Api/particle/shader/particle.vert","Api/particle/shader/particle.frag");
-	this->texture = loadT("assets/textures/particle.png");
+	this->texture = loadT("assets/textures/p.png");
 	this->newParticle = 0.0f;
 	this->spawTime = 500.f;
 	this->LifeTime = 400.f;
@@ -74,7 +74,7 @@ void particleSystem::draw(float delta, glm::mat4 view, glm::mat4 projection, glm
 		newParticle = 0;
 	}
 	else {
-		newParticle += delta *10.0;
+		newParticle += delta;
 	}
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);

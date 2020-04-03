@@ -13,6 +13,7 @@ class RYGraphics
         bool ssao;
 		bool left;
         float IOD;
+        float deltaLastTime;
 		Camera *camera;
         RYGraphics();
         ~RYGraphics();

@@ -6,7 +6,8 @@ RYGraphics::RYGraphics()
 {
     this->camera = new Camera();
     this->framesPerSecond = 0.0f;
-    this->lastTime = glfwGetTime();
+    this->lastTime = 0.0;
+    this->deltaLastTime = 0.0f;
     this->framesPerSecond = 0.0f;
     this->lastTime = glfwGetTime();
     this->stereoscopy = false;
@@ -43,5 +44,9 @@ void setCameraStereoscopy()
 
 float RYGraphics::getDeltaTime() {
 
-    return currentTime - lastTime;
+    float dt = glfwGetTime();
+    float t = dt - this->deltaLastTime;
+    this->deltaLastTime = dt;
+
+    return t;
 }
