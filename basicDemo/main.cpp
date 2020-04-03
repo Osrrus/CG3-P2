@@ -46,7 +46,7 @@ const char *windowTitle = "CG3-P2";
 // Window pointer
 GLFWwindow *window;
 // Shader object
-Shader *shader, *shaderStereo, *shaderGBuff, *shaderLight, *shaderSSAO, *shaderSSAOBlur, *shaderSSAOLight;
+Shader *shader, *shaderStereo, *shaderGBuff, *shaderLight, *shaderSSAO, *shaderSSAOBlur, *shaderSSAOLight, *shaderPar;
 // Index (GPU) of the geometry buffer
 unsigned int VBO;
 // Index (GPU) vertex array object
@@ -196,8 +196,8 @@ void renderImGui() {
         int subMesh = meshes[selectedModel]->m_Entries.size();
         if (subMesh > 1)
         {
-            ImGui::InputInt("Id selected", &selectedSubModel, 1, 1);
-            if (selectedSubModel < 0 || selectedSubModel >= meshes.size())
+            ImGui::InputInt("Id selected subMesh", &selectedSubModel, 1, 1);
+            if (selectedSubModel < 0 || selectedSubModel >= subMesh)
             {
                 selectedSubModel = 0;
             }
@@ -237,12 +237,12 @@ void renderImGui() {
         static float vec4f[4] = { meshes[selectedModel]->m_Entries[selectedSubModel].trans.x, 
             meshes[selectedModel]->m_Entries[selectedSubModel].trans.y, 
             meshes[selectedModel]->m_Entries[selectedSubModel].trans.z, 0.44f };
-        ImGui::SliderFloat3("Translation", vec4f, -100.0f, 100.0f);
+        ImGui::InputFloat3("Translation", vec4f);
         meshes[selectedModel]->m_Entries[selectedSubModel].trans = glm::vec3(vec4f[0], vec4f[1], vec4f[2]);
         static float vec4fs[4] = { meshes[selectedModel]->m_Entries[selectedSubModel].scale.x,
             meshes[selectedModel]->m_Entries[selectedSubModel].scale.y,
             meshes[selectedModel]->m_Entries[selectedSubModel].scale.z, 0.44f };
-        ImGui::SliderFloat3("Scale", vec4fs, -100.0f, 100.0f);
+        ImGui::InputFloat3("Scale", vec4fs);
         meshes[selectedModel]->m_Entries[selectedSubModel].scale = glm::vec3(vec4fs[0], vec4fs[1], vec4fs[2]);
 
     }
@@ -501,7 +501,7 @@ bool init()
     shaderSSAO = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssao.frag");
     shaderSSAOBlur = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoBlur.frag");
     shaderSSAOLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoLight.frag");
-    
+    shaderPar = new Shader("Api/particle/shader/particle.vert", "Api/particle/shader/particle.frag");
     // Loads all the geometry into the GPU
     buildGeometry();
     parSystem = new particleSystem();
@@ -509,7 +509,7 @@ bool init()
     //textureID = loadTexture("assets/textures/bricks2.jpg");
     string path;
     path = "assets/models/crysis.fbx";
-    path = "assets/models/cottage_obj/cottage_obj.obj";
+    path = "assets/models/cottage_obj/cottage_final.obj";
     //Loads 3D model
     mesh = new Mesh();
     if (!mesh->LoadMesh(path))
@@ -518,9 +518,11 @@ bool init()
         return false;
     }
     else {
-        cout << "carg� modelo" << endl;
+        cout << "carg� modelo " << mesh->m_Entries.size() << endl;
         mesh->text.load("assets\\textures\\cottage_diffuse.png");
         mesh->hasText = true;
+        //meshes.push_back(mesh);
+
     }
     dirLight = new light(glm::vec3(-3.0f));
     for (int i = 0; i < N_POINTLIGHTS; i++)
@@ -585,6 +587,7 @@ void processKeyboardInput(GLFWwindow *window)
         delete shaderSSAO;
         delete shaderSSAOBlur;
         delete shaderSSAOLight;
+        delete shaderPar;
         shader = new Shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
 		shaderStereo = new Shader("assets/shaders/stereo.vert", "assets/shaders/stereo.frag");
         shaderGBuff = new Shader("assets/shaders/gbuffer.vert", "assets/shaders/gbuffer.frag");
@@ -592,6 +595,7 @@ void processKeyboardInput(GLFWwindow *window)
         shaderSSAO = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssao.frag");
         shaderSSAOBlur = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoBlur.frag");
         shaderSSAOLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoLight.frag");
+        shaderPar = new Shader("Api/particle/shader/particle.vert", "Api/particle/shader/particle.frag");
     }
 }
 
@@ -610,13 +614,14 @@ void renderStereo() {
 	shaderStereo->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
     shaderStereo->setBool("left", Api->left);
     shaderStereo->setBool("hasText", true);
-    shaderStereo->setInt("text", mesh->text.bind(0));
+    //shaderStereo->setInt("text", mesh->text.bind(0));
     // Binds the vertex array to be drawn
 	//glBindVertexArray(VAO);
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
-    mesh->draw(shaderStereo);
+    //mesh->draw(shaderStereo);
+
     int sizeM = meshes.size();
     for (int i = 0; i < sizeM; i++)
     {
@@ -626,7 +631,7 @@ void renderStereo() {
 
         meshes[i]->draw(shaderStereo);
     }
-
+   
 	shaderStereo->use();
 	glColorMask(GL_TRUE,
 		GL_FALSE,
@@ -643,7 +648,8 @@ void renderStereo() {
 	//// Renders the triangle gemotry
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glBindVertexArray(0);
-    mesh->draw(shaderStereo);
+    //mesh->draw(shaderStereo);
+   
     for (int i = 0; i < sizeM; i++)
     {
         shaderStereo->setBool("hasText", meshes[i]->hasText);
@@ -668,11 +674,11 @@ void geometryPass(Shader* shaderGBuff) {
     shaderGBuff->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
     shaderGBuff->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
     shaderGBuff->setVec3("viewPos", Api->camera->position);
-    shaderGBuff->setBool("hasText", mesh->hasText);
+    //shaderGBuff->setBool("hasText", mesh->hasText);
 
-    shaderGBuff->setInt("text", mesh->text.bind(0));
+    //shaderGBuff->setInt("text", mesh->text.bind(0));
     shaderGBuff->setInt("ssao",Api->ssao);
-    mesh->draw(shaderGBuff);
+    //mesh->draw(shaderGBuff);
     int sizeM = meshes.size();
     glDisable(GL_TEXTURE_2D);
     for (int i = 0; i < sizeM; i++)
@@ -691,6 +697,7 @@ void geometryPass(Shader* shaderGBuff) {
     //glDrawArrays(GL_TRIANGLES, 0, 3);
     //glBindVertexArray(0);
     //glViewport(0, 0, windowWidth, windowHeight);
+    //parSystem->draw(dt, Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy), Api->camera->position);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -847,6 +854,7 @@ int main(int argc, char const *argv[])
     delete shaderSSAO;
     delete shaderSSAOBlur;
     delete shaderSSAOLight;
+    delete shaderPar;
     delete parSystem;
     delete mesh;
     delete dirLight;

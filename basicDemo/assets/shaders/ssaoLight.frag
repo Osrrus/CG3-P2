@@ -24,6 +24,7 @@ uniform DirLight dirLight;
 //Point light
 struct PointLight {    
     vec3 pos;
+    vec3 posLight;
     vec3 attenuationK; // k0 k1 k2
     vec3 ambientColor;
     vec3 diffuseColor;
@@ -95,5 +96,6 @@ void main()
     result += intensityPointLight(pointLights[0], Normal, viewDir, Diffuse);
     result += intensiyLightDir(Normal, viewDir, Diffuse);
     
+    color = vec4(vec3(texture(SSAO, vTexPos).r), 1.0f);
     color =  vec4(result,1.0f);
 }

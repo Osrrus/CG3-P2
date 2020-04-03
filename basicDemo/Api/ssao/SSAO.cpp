@@ -87,7 +87,7 @@ void SSAO::initKernel()
         glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
         sample = glm::normalize(sample);
         sample *= randomFloats(generator);
-        float scale = float(i) / kernelSize;
+        float scale = float(i) / (float)kernelSize;
 
         scale = lerp(0.1f, 1.0f, scale * scale);
         sample *= scale;
@@ -184,7 +184,8 @@ void SSAO::lightPass(Shader* shaderLight, light* dirLight, std::vector<pointLigh
     {
         std::string it = std::to_string(ii);
         glm::vec3 lightPosV = glm::vec3(view * glm::vec4(pLight[ii]->pos, 1.0f));
-        shaderLight->setVec3("pointLights[" + it + "].pos", lightPosV);
+        shaderLight->setVec3("pointLights[" + it + "].pos", pLight[ii]->pos);
+        shaderLight->setVec3("pointLights[" + it + "].posLight", lightPosV);
         shaderLight->setVec3("pointLights[" + it + "].ambientColor", pLight[ii]->color.ambient);
         shaderLight->setVec3("pointLights[" + it + "].diffuseColor", pLight[ii]->color.diffuse);
         shaderLight->setVec3("pointLights[" + it + "].specularColor", pLight[ii]->color.specular);
