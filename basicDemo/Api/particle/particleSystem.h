@@ -4,13 +4,14 @@
 #include "particle.h"
 #include "../components/loadTexture.h"
 #include <vector>
+#include <stdlib.h>
+#include <time.h> 
 
 class particleSystem
 {
     private:
         std::vector<particle*>particles;
         
-        int spawParticle;
         unsigned int lastActiveParticle;
         Shader* shader;
         unsigned int VBO[2], VAO, texture;
@@ -18,6 +19,7 @@ class particleSystem
 
     public:
         bool active;
+        int spawParticle;
         glm::vec3 position, direction, scale;
         glm::vec4 color;
         float spawTime, LifeTime;
