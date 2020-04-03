@@ -2,17 +2,19 @@
 
 #define PARTICLENUMBER 2000
 
-particleSystem::particleSystem():position(0.0f),direction(0.0f,0.1f,0.0f),color(0.2f,0.25f,0.5f,1.0f),scale(2.0f)
-{
-	this->spawParticle = 1;
+particleSystem::particleSystem():position(30.0f,0.0f,0.0f),direction(0.0f,1.0f,0.0f),color(0.2f,0.25f,0.5f,1.0f),scale(2.0f)
+{	
+	srand(time(NULL));
+
+	this->spawParticle = 4;
 	this->numberOfparticles = PARTICLENUMBER;
 	this->active = true;
 	this->lastActiveParticle = 0;
 	this->shader = new Shader("Api/particle/shader/particle.vert","Api/particle/shader/particle.frag");
 	this->texture = loadT("assets/textures/p.png");
 	this->newParticle = 0.0f;
-	this->spawTime = 500.f;
-	this->LifeTime = 400.f;
+	this->spawTime = 1.0f;
+	this->LifeTime = 10.0f;
 
 	float vertex[] = {
 		 0.2f, 0.2f, 0.0f,
@@ -87,7 +89,7 @@ void particleSystem::draw(float delta, glm::mat4 view, glm::mat4 projection, glm
 
 		if (this->particles[i]->lifeTime > 0.0f) {
 
-			this->particles[i]->position += this->particles[i]->direction *delta;
+			this->particles[i]->position += this->direction *delta;
 			this->particles[i]->color += 0.005 * delta;
 			this->particles[i]->draw(this->shader,this->VAO,cameraPos);
 			this->particles[i]->lifeTime -= delta;
@@ -104,8 +106,17 @@ void particleSystem::createNewParticles(float delta)
 	for (unsigned int i = 0; i < spawParticle; i++) {
 
 		particle* p = getFirtsDeathParticle();
-		p->position = this->position;
-		p->direction = this->direction;
+		float random = (rand() % 100 - 50) / 10.0f;
+
+		p->position.x = this->position.x > 0 ? rand() % 3 + this->position.x + random : 0.0f + random;
+		p->position.y = this->position.y > 0 ? rand() % 3 + this->position.y + random : 0.0f + random;
+		p->position.z = this->position.z > 0 ? rand() % 3 + this->position.z + random : 0.0f + random;
+
+
+		p->direction.x = this->direction.x > 0 ? rand() % 3 + this->direction.x + random : 0.0f;
+		p->direction.y = this->direction.y > 0 ? rand() % 3 + this->direction.y + random : 0.0f;
+		p->direction.z = this->direction.z > 0 ? rand() % 3 + this->direction.z + random : 0.0f;
+
 		p->color = this->color;
 		p->scale = this->scale;
 		p->lifeTime = this->LifeTime;

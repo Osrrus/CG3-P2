@@ -356,7 +356,9 @@ void renderImGui() {
         
         ImGui::InputFloat("Spawn Time", &parSystem->spawTime, 0.01f, 1.0f, "%.3f");
         ImGui::InputFloat("Life Time", &parSystem->LifeTime, 0.01f, 1.0f, "%.3f");
-        
+        ImGui::InputInt("Number of Particles", &parSystem->numberOfparticles, 1, 5);
+        ImGui::InputInt("Spawn Particles", &parSystem->spawParticle, 1, 5);
+
         ImGui::TreePop();
 
     }
