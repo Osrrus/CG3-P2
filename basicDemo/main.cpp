@@ -74,6 +74,7 @@ int selectedSubModel = 0;
 int textSelec;
 GBuffer m_gbuffer;
 SSAO m_ssao;
+float dt;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void onMouseButton(GLFWwindow* window, int button, int action, int mods);
@@ -708,7 +709,7 @@ void render()
 	{
         if (!Api->ssao)
         {
-            //parSystem->draw(Api->getDeltaTime(), Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy), Api->camera->position);
+            
             geometryPass(shaderGBuff);
             m_gbuffer.lightPass(shaderLight, dirLight, pLight, N_POINTLIGHTS, windowWidth, windowHeight, Api->camera->position);
 
@@ -716,7 +717,7 @@ void render()
             shader->setMat4("projection", Api->camera->getWorlToProjMatrix(Api->stereoscopy));
             shader->setMat4("view", Api->camera->getWorlToViewMatrix(Api->stereoscopy));
             pLight[0]->draw(shader);
-        }
+        }   
         else
         {
         //SSAO
@@ -727,11 +728,11 @@ void render()
             m_gbuffer.m_textures[GBuffer::GBUFFER_TEXTURE_TYPE_POSITION], m_gbuffer.m_textures[GBuffer::GBUFFER_TEXTURE_TYPE_NORMAL]);
             m_ssao.lightPass(shaderSSAOLight, dirLight, pLight, N_POINTLIGHTS, m_gbuffer.m_textures, Api->camera->getWorlToViewMatrix(Api->stereoscopy));
         //SSAO
-
+            
         }
         //deferred
-
-
+        
+        parSystem->draw(dt, Api->camera->getWorlToViewMatrix(Api->stereoscopy), Api->camera->getWorlToProjMatrix(Api->stereoscopy), Api->camera->position);
 	}
 	else
 	{
@@ -800,7 +801,7 @@ void update()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        
+        dt = Api->getDeltaTime();
         render();
         
         renderImGui();
