@@ -34,13 +34,14 @@
 #include "Api/light/pointLight.h"
 #include "Api/gbuffer/gbuffer.h"
 #include "Api/ssao/SSAO.h"
+#include "Api/bloom/bloom.h"
 
 //assimp
 Assimp::Importer importer;
 // Window current width
-extern unsigned int windowWidth = 800;
+extern unsigned int windowWidth = 1400;
 // Window current height
-extern unsigned int windowHeight = 600;
+extern unsigned int windowHeight = 980;
 // Window title
 const char *windowTitle = "CG3-P2";
 // Window pointer
@@ -81,6 +82,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods);
 string loadPath(char type);
 string SplitFilename(const std::string& str);
 
+bloom *myBloom;
 /* *
  * Handles the window resize
  * @param{GLFWwindow} window pointer
@@ -359,6 +361,17 @@ void renderImGui() {
         ImGui::InputInt("Number of Particles", &parSystem->numberOfparticles, 1, 5);
         ImGui::InputInt("Spawn Particles", &parSystem->spawParticle, 1, 5);
 
+        if (ImGui::Button("Load texture"))
+        {
+            string archT = loadPath(TYPE_TEXTURE);
+            if (archT != "")
+            {
+                string particleT = SplitFilename(archT);
+                parSystem->texture = loadT(particleT.c_str());
+            }
+
+        }
+
         ImGui::TreePop();
 
     }
@@ -412,33 +425,6 @@ void initGL()
     // Sets the clear color
     glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 }
-
-//void renderQuad()
-//{
-//    if (quadVAO == 0)
-//    {
-//        float quadVertices[] = {
-//            // positions        // texture Coords
-//            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-//            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-//            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-//            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-//        };
-//        // setup plane VAO
-//        glGenVertexArrays(1, &quadVAO);
-//        glGenBuffers(1, &quadVBO);
-//        glBindVertexArray(quadVAO);
-//        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-//        glEnableVertexAttribArray(0);
-//        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-//        glEnableVertexAttribArray(1);
-//        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-//    }
-//    glBindVertexArray(quadVAO);
-//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-//    glBindVertexArray(0);
-//}
 
 /**
  * Builds all the geometry buffers and
@@ -504,6 +490,7 @@ bool init()
     shaderSSAOBlur = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoBlur.frag");
     shaderSSAOLight = new Shader("assets/shaders/lightPass.vert", "assets/shaders/ssaoLight.frag");
     
+    myBloom = new bloom();
     // Loads all the geometry into the GPU
     buildGeometry();
     parSystem = new particleSystem();
@@ -713,6 +700,7 @@ void render()
         {
             
             geometryPass(shaderGBuff);
+            //myBloom->setBloom();
             m_gbuffer.lightPass(shaderLight, dirLight, pLight, N_POINTLIGHTS, windowWidth, windowHeight, Api->camera->position);
 
             shader->use();
@@ -852,6 +840,7 @@ int main(int argc, char const *argv[])
     delete parSystem;
     delete mesh;
     delete dirLight;
+    delete myBloom;
     //delete pLight;
     pLight.clear();
     ImGui_ImplOpenGL3_Shutdown();

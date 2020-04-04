@@ -43,6 +43,9 @@
     <Filter Include="Api\ssao">
       <UniqueIdentifier>{9ba1afe4-8634-419a-bfc9-587220e979df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Api\bloom">
+      <UniqueIdentifier>{7d188618-56be-4cdc-8b2e-99958c0044e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -104,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="Api\ssao\SSAO.cpp">
       <Filter>Api\ssao</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\bloom\bloom.cpp">
+      <Filter>Api\bloom</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="Api\components\Helper.h">
       <Filter>Api\components</Filter>
+    </ClInclude>
+    <ClInclude Include="Api\bloom\bloom.h">
+      <Filter>Api\bloom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
