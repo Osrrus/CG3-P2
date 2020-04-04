@@ -2,6 +2,8 @@
 // Vertex texture position (interpolated/fragment)
 in vec2 vTexPos;
 // texture
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
 
 uniform sampler2D gPosition;
 uniform sampler2D gDiffuse;
@@ -79,7 +81,7 @@ vec3 intensityPointLight(PointLight pointLight, vec3 normal, vec3 viewdir, vec3 
     
 }
 
-out vec4 color;
+// out vec4 color;
 void main()
 {
     vec3 FragPos = texture(gPosition, vTexPos).rgb;
@@ -93,8 +95,16 @@ void main()
     vec3 result = vec3(0.0f);
     result += intensityPointLight(pointLights[0], Normal, viewDir, Diffuse);
     result += intensiyLightDir(Normal, viewDir, Diffuse);
-    color =  vec4(1.0f);
-    color =  vec4(FragPos,1.0f);
-    color =  vec4(Normal,1.0f);
-    color =  vec4(result,1.0f);
+    FragColor =  vec4(1.0f);
+    FragColor =  vec4(FragPos,1.0f);
+    FragColor =  vec4(Normal,1.0f);
+    FragColor =  vec4(result,1.0f);
+    
+    float bri = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+
+    if(bri > 1.0){
+        BrightColor = vec4(FragColor.rgb, 1.0);
+    }else{
+        BrightColor = vec4(0.0f,0.0f,0.0f,1.0f);
+    }
 }

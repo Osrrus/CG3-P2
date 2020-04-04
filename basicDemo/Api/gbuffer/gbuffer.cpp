@@ -102,8 +102,8 @@ GLuint GBuffer::getFBO()
 
 void GBuffer::lightPass(Shader * shaderLight, light *dirLight, std::vector<pointLight*> pLight, int N_L, int windowWidth, int windowHeight, glm::vec3 viewPos) {
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     shaderLight->use();
     shaderLight->setInt("gPosition", 0);
     shaderLight->setInt("gDiffuse", 1);

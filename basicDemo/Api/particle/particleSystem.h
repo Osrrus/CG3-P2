@@ -14,11 +14,12 @@ class particleSystem
         
         unsigned int lastActiveParticle;
         Shader* shader;
-        unsigned int VBO[2], VAO, texture;
+        unsigned int VBO[2], VAO;
         float newParticle;
 
     public:
         bool active;
+        unsigned int texture;
         int spawParticle;
         glm::vec3 position, direction, scale;
         glm::vec4 color;

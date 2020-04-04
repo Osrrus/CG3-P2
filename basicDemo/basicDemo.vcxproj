@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Api\bloom\bloom.cpp" />
     <ClCompile Include="Api\components\camera.cpp" />
     <ClCompile Include="Api\gbuffer\gbuffer.cpp" />
     <ClCompile Include="Api\light\light.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Api\bloom\bloom.h" />
     <ClInclude Include="Api\components\camera.h" />
     <ClInclude Include="Api\components\Helper.h" />
     <ClInclude Include="Api\components\loadTexture.h" />
